@@ -1,7 +1,7 @@
-import { Modulo } from "./Modulo";
+import { Module } from "./Module";
 
-export class Oscilador extends Modulo {
-  public readonly node: OscillatorNode = new OscillatorNode(Modulo.context);
+export class OscillatorModule extends Module {
+  public readonly node: OscillatorNode = new OscillatorNode(Module.context);
   private readonly _unisonNodes: [OscillatorNode, GainNode, PannerNode][] = [];
   private readonly _unisonDetuneValues: number[] = [
     -7, 7, -14, 14, -21, 21, -28, 28, -35, 35, -42, 42, -50, 50,
@@ -16,30 +16,41 @@ export class Oscilador extends Modulo {
   constructor() {
     super();
     this._unisonNodes = this._unisonDetuneValues.map((detuneValue) => {
-      const unisonOscNode = new OscillatorNode(Modulo.context, {
+      const unisonOscNode = new OscillatorNode(Module.context, {
         detune: detuneValue,
       });
-      const unisonPanNode = new PannerNode(Modulo.context, {
+      const unisonPanNode = new PannerNode(Module.context, {
         positionX: detuneValue * 0.01,
       });
-      const unisonGainNode = new GainNode(Modulo.context, { gain: 0 });
+      const unisonGainNode = new GainNode(Module.context, { gain: 0 });
       unisonOscNode.connect(unisonPanNode);
       unisonPanNode.connect(unisonGainNode);
       return [unisonOscNode, unisonGainNode, unisonPanNode];
     });
   }
-
+  /**
+   * Conecta o oscilador a um nó de audio
+   * @param destination Nó de destino da conexão
+   */
   public connect(destination: AudioNode): void {
     this._destination = destination;
     this.node.connect(destination);
     this._unisonNodes.forEach(([_, gain]) => gain.connect(destination));
   }
+  /**
+   * Inicia o oscilador
+   * @returns void
+   */
   public start(): void {
     if (this._running) return;
     this.node.start();
     this._unisonNodes.forEach(([osc]) => osc.start());
     this._running = true;
   }
+  /**
+   * Para o oscilador
+   * @returns void
+   */
   public stop(): void {
     if (!this._running) return;
     this.node.stop();

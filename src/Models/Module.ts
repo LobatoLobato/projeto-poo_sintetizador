@@ -1,4 +1,4 @@
-export abstract class Modulo {
+export abstract class Module {
   public static context: AudioContext = new AudioContext();
   public static listener: AudioListener = this.context.listener;
   protected maxValue: number = 1;
@@ -9,7 +9,7 @@ export abstract class Modulo {
     return this._destination;
   }
   protected currentTime(): number {
-    return Modulo.context.currentTime;
+    return Module.context.currentTime;
   }
   public abstract connect(destination: AudioNode | AudioParam): void;
   public abstract start(): void;

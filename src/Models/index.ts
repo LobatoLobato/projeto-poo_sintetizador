@@ -1,2 +1,2 @@
-export * from "./Modulo";
-export * from "./Oscilador";
+export * from "./Module";
+export * from "./OscillatorModule";
