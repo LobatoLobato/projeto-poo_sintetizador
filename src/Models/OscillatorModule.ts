@@ -28,6 +28,7 @@ export class OscillatorModule extends Module {
       return [unisonOscNode, unisonGainNode, unisonPanNode];
     });
   }
+
   /**
    * Conecta o oscilador a um nó de audio
    * @param destination Nó de destino da conexão
@@ -39,7 +40,6 @@ export class OscillatorModule extends Module {
   }
   /**
    * Inicia o oscilador
-   * @returns void
    */
   public start(): void {
     if (this._running) return;
@@ -49,7 +49,6 @@ export class OscillatorModule extends Module {
   }
   /**
    * Para o oscilador
-   * @returns void
    */
   public stop(): void {
     if (!this._running) return;
@@ -89,7 +88,7 @@ export class OscillatorModule extends Module {
     });
   }
   public set unisonSpread(spread: number) {
-    spread = Math.max(this.minValue, Math.min(spread, 100));
+    spread = Math.max(0, Math.min(spread, 100));
     this._unisonSpread = spread;
     spread *= 0.0002;
     this._unisonNodes.forEach(([osc, _, pan]) => {
