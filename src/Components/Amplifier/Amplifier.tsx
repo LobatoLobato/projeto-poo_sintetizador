@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./Amplifier.css";
-import { AmplifierModule } from "../../Models";
+import { AmplifierModule } from "@models";
 
 interface Props {
   connectTo: AudioNode | undefined;

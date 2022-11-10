@@ -1,5 +1,5 @@
 import { Module } from "./Module";
-import { Utils } from "../Common/Utils";
+import { Utils } from "@common";
 
 export class EnvelopeModule extends Module {
   public readonly node: GainNode = new GainNode(Module.context, {

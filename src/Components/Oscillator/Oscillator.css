@@ -1,0 +1,6 @@
+.oscillator-container {
+  @apply flex flex-col w-56 gap-2 bg-yellow-300;
+}
+.oscillator-container .waveform-selector {
+  @apply flex flex-col pb-2 bg-blue-400;
+}

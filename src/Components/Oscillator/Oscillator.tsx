@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { OscillatorModule } from "../Models";
-import { Utils } from "../Common/Utils";
-import { Slider } from "./Slider";
+import "./Oscillator.css";
+import { OscillatorModule } from "@models";
+import { Utils } from "@common";
+import { Slider } from "@components";
 
 interface Props {
   connectTo: AudioNode | undefined;
-  onMount: (module: OscillatorModule) => void;
+  onMount?: (module: OscillatorModule) => void;
   noteOn: number;
 }
 export function Oscillator(props: Props) {
@@ -17,7 +18,7 @@ export function Oscillator(props: Props) {
   const { onMount } = props;
 
   useEffect(() => {
-    onMount(oscillator);
+    if (onMount) onMount(oscillator);
     oscillator.start();
   }, [onMount, oscillator]);
 
@@ -34,9 +35,9 @@ export function Oscillator(props: Props) {
   }, [props.noteOn, oscillator]);
 
   return (
-    <div className="flex flex-col w-56 gap-2 bg-yellow-300">
+    <div className="oscillator-container">
       Oscillator
-      <div className=" flex flex-col pb-2 bg-blue-400">
+      <div className="waveform-selector">
         Waveform
         <select
           className="mx-1"
