@@ -1,0 +1,21 @@
+.amplifier {
+  @apply flex flex-col bg-yellow-300 w-56 gap-2;
+  /* background: black; */
+}
+
+.amplifier-envelope {
+  @apply flex flex-col w-full gap-2;
+}
+
+.amplifier-slider-container {
+  @apply flex w-full bg-blue-400 flex-wrap;
+}
+.amplifier-slider-title {
+  @apply w-full shrink-0 text-sm;
+}
+.amplifier-slider {
+  @apply w-10/12;
+}
+.amplifier-slider-value {
+  @apply w-2/12;
+}

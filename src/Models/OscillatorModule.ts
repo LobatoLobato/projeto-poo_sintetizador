@@ -74,7 +74,10 @@ export class OscillatorModule extends Module {
     detune = detune || this.minValue;
     this._detune = detune;
     this.node.detune.value = detune;
-    this._unisonNodes.forEach(([osc]) => (osc.detune.value = detune));
+    this._unisonNodes.forEach(
+      ([osc], index) =>
+        (osc.detune.value = this._unisonDetuneValues[index] + detune)
+    );
   }
   public set pitchOffset(offset: number) {
     this._pitchOffset = offset;
