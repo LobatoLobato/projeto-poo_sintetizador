@@ -1,4 +1,4 @@
-export * from "./Rack";
+export * from "./Rack/Rack";
 export * from "./Slider";
 export * from "./Amplifier/Amplifier";
 export * from "./Oscillator/Oscillator";

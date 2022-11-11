@@ -1,0 +1,60 @@
+.keyboard {
+  @apply flex w-full flex-col 
+  border-t-2 border-black bg-zinc-900;
+  .top {
+    @apply z-10 flex w-full items-center gap-4
+    p-1 shadow-md shadow-[#00000060];
+  }
+  .pitch-selector {
+    @apply flex w-5/12 flex-col items-center gap-2 rounded-sm p-1 
+    text-center text-white md:w-3/12 lg:w-[14%];
+
+    .top-bar {
+      @apply flex w-full items-center justify-between gap-1
+      rounded-sm bg-zinc-800;
+      .octave-value {
+        @apply w-1/3 rounded-sm bg-zinc-700;
+      }
+    }
+    button {
+      @apply w-1/2 rounded-sm border-2 border-black bg-zinc-600 text-center
+       shadow-sm shadow-black hover:bg-green-400;
+    }
+  }
+}
+
+.octave-container {
+  @apply relative flex h-52 w-1/3 cursor-pointer;
+
+  .keys-container {
+    @apply absolute flex h-full w-full;
+  }
+  .keys-container {
+    @apply absolute flex h-full w-full;
+  }
+  .left-key-area {
+    @apply flex w-5/12 justify-evenly;
+  }
+  .right-key-area {
+    @apply flex w-7/12 justify-evenly;
+  }
+}
+
+.key {
+  @apply flex items-end justify-center border-2 border-black
+  text-xs font-semibold lg:text-base;
+}
+.key.white {
+  @apply border-l border-r bg-white 
+  text-black hover:bg-orange-400;
+}
+.key.black {
+  @apply z-50 h-3/5 bg-black 
+  text-white hover:bg-green-400;
+}
+.key.white.pressed {
+  @apply bg-orange-400;
+}
+.key.black.pressed {
+  @apply bg-green-400;
+}

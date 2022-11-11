@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createGlobalstate, useGlobalState } from "state-pool";
-import { KeyboardHandler } from "@models";
-import "./keyboard.css";
+import { KeyboardHandler } from "models";
+import "./keyboard.scss";
 
 const kbdKeys: string[] = KeyboardHandler.kbdKeys;
 
@@ -31,6 +31,9 @@ interface KeyboardProps {
   onNoteOff: (state: { note: number; active: boolean }) => void;
 }
 export function Keyboard(props: KeyboardProps) {
+  const baseOctave = 36;
+  const [octave, setOctave] = useState(0);
+  const [transpose, setTranspose] = useState(0);
   const [noteOn, setNoteOn] = useGlobalState<{ note: number; active: boolean }>(
     globalNoteOn
   );
@@ -56,16 +59,58 @@ export function Keyboard(props: KeyboardProps) {
   }
   const { onNoteOn, onNoteOff } = props;
   useEffect(() => {
-    onNoteOn({ ...noteOn, note: noteOn.note + 36 });
-  }, [noteOn, onNoteOn]);
+    const note = noteOn.note + baseOctave + 12 * octave + transpose;
+    onNoteOn({ ...noteOn, note });
+  }, [noteOn, onNoteOn, octave, transpose]);
   useEffect(() => {
-    onNoteOff({ ...noteOff, note: noteOff.note + 36 });
-  }, [noteOff, onNoteOff]);
+    const note = noteOff.note + baseOctave + 12 * octave + transpose;
+    onNoteOff({ ...noteOff, note });
+  }, [noteOff, onNoteOff, octave, transpose]);
   return (
-    <div className="flex flex-col items-end justify-end w-full bg-blue-400">
-      <p>Keyboard</p>
+    <div className="keyboard">
+      <div className="top">
+        <div className="pitch-selector">
+          <div className="top-bar">
+            <p className="pl-1">Octave</p>
+            <p className="octave-value">{octave}</p>
+          </div>
+          <div className="flex w-full gap-2">
+            <button
+              onClick={() => setOctave(octave > -5 ? octave - 1 : octave)}
+            >
+              -
+            </button>
+            <button onClick={() => setOctave(octave < 5 ? octave + 1 : octave)}>
+              +
+            </button>
+          </div>
+        </div>
+        <div className="pitch-selector">
+          <div className="top-bar">
+            <p className="pl-1">Transpose</p>
+            <p className="octave-value">{transpose}</p>
+          </div>
+          <div className="flex w-full gap-2">
+            <button
+              onClick={() =>
+                setTranspose(transpose > -12 ? transpose - 1 : transpose)
+              }
+            >
+              -
+            </button>
+            <button
+              onClick={() =>
+                setTranspose(transpose < 12 ? transpose + 1 : transpose)
+              }
+            >
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="h-1 w-full bg-red-800"></div>
       <div
-        className="keys flex items-end justify-end w-full bg-yellow-300"
+        className="keys flex w-full items-end justify-end"
         onMouseLeave={handleMouseLeave}
       >
         <Octave
@@ -84,7 +129,7 @@ export function Keyboard(props: KeyboardProps) {
           startNote={24}
         />
         <Key
-          className="white w-[4.8%] h-40 lg:h-80"
+          className="white h-52 w-[4.8%]"
           note={36}
           onNoteOn={handleNoteOn}
           onNoteOff={handleNoteOff}
