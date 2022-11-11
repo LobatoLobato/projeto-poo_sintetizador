@@ -1,0 +1,38 @@
+.oscillator-container {
+  @apply flex w-56 flex-col items-center gap-2 bg-zinc-800 px-1 text-white;
+  .waveform-selector {
+    @apply flex w-full flex-col items-center rounded-sm bg-zinc-700 px-1 text-sm;
+    select {
+      @apply w-full rounded-md bg-zinc-600 text-justify outline-none;
+    }
+    .waveform-icon-container {
+      @apply flex w-full justify-evenly gap-2 text-white;
+
+      button {
+        @apply h-fit w-fit bg-zinc-700 p-1 hover:bg-zinc-600;
+        .waveform-icon {
+          @apply w-5;
+          filter: invert(100%);
+        }
+        .waveform-icon.selected {
+          filter: invert(50%) sepia(100%) saturate(7466%) hue-rotate(160deg)
+            brightness(100%) contrast(115%);
+        }
+      }
+    }
+  }
+  .unison-container {
+    @apply relative flex w-full flex-col items-center justify-between gap-1
+    overflow-hidden rounded-sm bg-zinc-700 px-1 py-1 text-sm text-white;
+    .visualizer {
+      @apply relative flex h-7 w-full justify-center overflow-hidden
+      rounded-sm bg-zinc-600;
+    }
+    .button-container {
+      @apply flex w-full gap-1 text-xs;
+      button {
+        @apply w-1/2 rounded-sm border-2 border-black text-white hover:bg-zinc-500;
+      }
+    }
+  }
+}

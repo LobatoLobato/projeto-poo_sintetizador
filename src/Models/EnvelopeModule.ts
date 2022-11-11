@@ -1,5 +1,5 @@
 import { Module } from "./Module";
-import { Utils } from "@common";
+import { Utils } from "common";
 
 export class EnvelopeModule extends Module {
   public readonly node: GainNode = new GainNode(Module.context, {
@@ -27,7 +27,7 @@ export class EnvelopeModule extends Module {
     // Inicia a curva de "attack" até o valor máximo
     this.node.gain.value = this.minValue;
     this.node.gain.setValueAtTime(this.node.gain.value, this.currentTime());
-    this.node.gain.exponentialRampToValueAtTime(
+    this.node.gain.linearRampToValueAtTime(
       this.maxValue,
       this.currentTime() + this.attack
     );

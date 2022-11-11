@@ -58,6 +58,7 @@ export class OscillatorModule extends Module {
   }
 
   public set type(type: OscillatorType) {
+    type = type.toLowerCase() as OscillatorType;
     this._type = type;
     this.node.type = type;
     this._unisonNodes.forEach(([osc]) => (osc.type = type));
