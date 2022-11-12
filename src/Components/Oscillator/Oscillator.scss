@@ -27,6 +27,25 @@
     .visualizer {
       @apply relative flex h-7 w-full justify-center overflow-hidden
       rounded-sm bg-zinc-600;
+      .visualizer-view {
+        @apply absolute flex h-full w-full justify-center overflow-hidden;
+        .v-bar {
+          @apply mt-1 h-10 w-1 shrink-0 bg-yellow-400 shadow-inner shadow-zinc-600;
+        }
+        .v-bar.edge {
+          @apply mt-2 bg-red-600;
+        }
+        .v-bar.middle {
+          @apply mt-0.5 bg-green-600;
+        }
+        .v-spread {
+          @apply flex h-full items-end justify-center overflow-hidden rounded-sm bg-opacity-30 
+          bg-gradient-to-r from-[#00ff0d30] via-[#02620780] to-[#00ff0d30];
+          .v-spread-bar {
+            @apply h-1 w-full bg-gradient-to-r from-[#00ff0d80] via-[#02620780] to-[#00ff0d80];
+          }
+        }
+      }
     }
     .button-container {
       @apply flex w-full gap-1 text-xs;
