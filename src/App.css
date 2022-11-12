@@ -1,3 +1,8 @@
 .App {
-  @apply flex h-screen flex-col justify-between bg-pink-300 font-poppins;
+  background: url("https://img.elo7.com.br/product/zoom/34A8A81/caneca-graphic-design-is-my-passion-cachorro.jpg");
+  @apply flex h-screen flex-col justify-between bg-pink-300 bg-[70%70%] bg-no-repeat font-poppins;
+  background-size: 100% 100%;
+}
+.initctx-btn {
+  @apply mx-auto mt-20 h-8 w-fit border-2 border-black bg-gray-400 px-2 hover:bg-pink-300;
 }

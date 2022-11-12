@@ -6,19 +6,38 @@
     p-1 shadow-md shadow-[#00000060];
   }
   .pitch-selector {
-    @apply flex w-5/12 flex-col items-center gap-2 rounded-sm p-1 
-    text-center text-white md:w-3/12 lg:w-[14%];
+    @apply flex h-[66px] w-5/12 flex-col items-center gap-2 rounded-sm 
+    p-1 text-center text-white md:w-3/12 lg:w-[14%];
 
     .top-bar {
-      @apply flex w-full items-center justify-between gap-1
-      rounded-sm bg-zinc-800;
+      @apply flex h-6 w-full items-center justify-between
+      gap-1 rounded-sm bg-zinc-800;
       .octave-value {
         @apply w-1/3 rounded-sm bg-zinc-700;
       }
     }
     button {
-      @apply w-1/2 rounded-sm border-2 border-black bg-zinc-600 text-center
+      @apply h-7 w-1/2 rounded-sm border-2 border-black bg-zinc-600 text-center
        shadow-sm shadow-black hover:bg-green-400;
+    }
+  }
+  .portamento-options {
+    @apply flex h-[66px] w-5/12 flex-col items-center gap-2 rounded-sm 
+    p-1 text-center text-white md:w-3/12 lg:w-[14%];
+
+    .top-bar {
+      @apply flex h-6 w-full items-center justify-between
+      gap-1 rounded-sm bg-zinc-800;
+      .octave-value {
+        @apply w-1/3 rounded-sm bg-zinc-700;
+      }
+    }
+    button {
+      @apply flex h-7 w-1/2 items-center justify-center rounded-md border-2 border-black bg-zinc-600 text-center
+       shadow-sm shadow-black hover:bg-zinc-500;
+    }
+    button.on {
+      @apply bg-green-500 hover:bg-green-400;
     }
   }
 }

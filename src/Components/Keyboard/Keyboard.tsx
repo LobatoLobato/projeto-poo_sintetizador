@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { createGlobalstate, useGlobalState } from "state-pool";
 import { KeyboardHandler } from "models";
 import "./keyboard.scss";
+import { Slider } from "components/Slider";
+import { Utils } from "common";
 
 const kbdKeys: string[] = KeyboardHandler.kbdKeys;
 
@@ -29,11 +31,16 @@ KeyboardHandler.addKeyUpListener((ev, note) => {
 interface KeyboardProps {
   onNoteOn: (state: { note: number; active: boolean }) => void;
   onNoteOff: (state: { note: number; active: boolean }) => void;
+  onPortamentoChange?: (state: { time: number; on: boolean }) => void;
+  onLegatoChange?: (state: boolean) => void;
 }
 export function Keyboard(props: KeyboardProps) {
   const baseOctave = 36;
   const [octave, setOctave] = useState(0);
   const [transpose, setTranspose] = useState(0);
+  const [portamentoTime, setPortamentoTime] = useState(0);
+  const [portamentoOn, setPortamentoOn] = useState(false);
+  const [legatoOn, setLegatoOn] = useState(false);
   const [noteOn, setNoteOn] = useGlobalState<{ note: number; active: boolean }>(
     globalNoteOn
   );
@@ -42,6 +49,19 @@ export function Keyboard(props: KeyboardProps) {
     active: boolean;
   }>(globalNoteOff);
   const [isActive, setIsActive] = useState(false);
+  function handlePortamentoChange(value: number | boolean) {
+    if (!props.onPortamentoChange) return;
+    const time =
+      typeof value === "number" ? Utils.linToExp2(value, 0, 2) : portamentoTime;
+    const on = typeof value === "boolean" ? value : portamentoOn;
+    props.onPortamentoChange({ time, on });
+    setPortamentoTime(time);
+    setPortamentoOn(on);
+  }
+  function handleLegatoChange() {
+    setLegatoOn(!legatoOn);
+    if (props.onLegatoChange) props.onLegatoChange(!legatoOn);
+  }
   function handleNoteOn(note: number) {
     setIsActive(true);
     setNoteOn({ note, active: true });
@@ -107,6 +127,35 @@ export function Keyboard(props: KeyboardProps) {
             </button>
           </div>
         </div>
+        <div className="portamento-options">
+          <div className="top-bar">
+            <p className="pl-1">Portamento</p>
+            <p className="octave-value">{portamentoTime.toFixed(2)}</p>
+          </div>
+          <div className="flex h-full w-full items-center justify-center gap-2">
+            <button
+              className={`octave-value h-7 ${portamentoOn ? "on" : ""}`}
+              onClick={() => handlePortamentoChange(!portamentoOn)}
+            >
+              <p>On</p>/<p>Off</p>
+            </button>
+            <Slider
+              className="w-full"
+              inputClassName="w-full"
+              max={2}
+              step={0.01}
+              defaultValue={0}
+              onInput={handlePortamentoChange}
+            />
+          </div>
+        </div>
+        <button
+          className="flex h-7 w-1/2 items-center justify-center rounded-md border-2 border-black bg-zinc-600 text-center shadow-sm shadow-black hover:bg-zinc-500"
+          style={{ background: legatoOn ? "red" : "yellow" }}
+          onClick={handleLegatoChange}
+        >
+          Legato
+        </button>
       </div>
       <div className="h-1 w-full bg-red-800"></div>
       <div
