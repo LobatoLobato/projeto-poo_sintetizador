@@ -2,11 +2,11 @@ export abstract class Module {
   public static context: AudioContext = new AudioContext();
   public static listener: AudioListener = this.context.listener;
   protected maxValue: number = 1;
-  protected minValue: number = 0.0001;
-  protected _destination: AudioNode | null = null;
+  protected minValue: number = 0.00000000001;
+  protected _destination: AudioNode | AudioParam | null = null;
   public abstract node: AudioNode;
   public get destination(): AudioNode | null {
-    return this._destination;
+    return this._destination as AudioNode;
   }
   protected currentTime(): number {
     return Module.context.currentTime;
