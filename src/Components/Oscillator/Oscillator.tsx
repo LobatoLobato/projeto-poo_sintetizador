@@ -78,12 +78,15 @@ export function Oscillator(props: Props) {
       </div>
       <Envelope
         className="col-span-full flex h-full w-full grow flex-col bg-zinc-700 px-1 text-center text-sm"
-        onAmountChange={(value) => (oscillator.envelope.amount = value * 1000)}
+        onAmountChange={(value) => {
+          oscillator.envelope.amount = value * 1000 - 500;
+        }}
         onAttackChange={(value) => (oscillator.envelope.attack = value * 5)}
         onDecayChange={(value) => (oscillator.envelope.decay = value * 5)}
         onSustainChange={(value) => (oscillator.envelope.sustain = value)}
         onReleaseChange={(value) => (oscillator.envelope.release = value * 5)}
         defaultAmount={0.5}
+        amountStep={0.01}
         defaultSustain={0}
       />
       <Slider

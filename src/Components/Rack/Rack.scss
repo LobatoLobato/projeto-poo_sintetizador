@@ -1,5 +1,5 @@
 .rack {
-  @apply flex h-full gap-0.5 bg-zinc-900
+  @apply flex h-full gap-0.5 bg-zinc-900 text-white
   scrollbar-thin scrollbar-track-[#ffffff30] scrollbar-thumb-[#ffffff60];
   overflow: hidden;
 }

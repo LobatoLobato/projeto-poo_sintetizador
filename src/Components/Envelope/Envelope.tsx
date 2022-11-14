@@ -16,6 +16,11 @@ interface EnvelopeProps {
   defaultDecay?: number;
   defaultSustain?: number;
   defaultRelease?: number;
+  amountStep?: number;
+  attackStep?: number;
+  decayStep?: number;
+  sustainStep?: number;
+  releaseStep?: number;
 }
 export function Envelope(props: EnvelopeProps) {
   const { className } = props;
@@ -34,7 +39,7 @@ export function Envelope(props: EnvelopeProps) {
         className="flex w-full items-center gap-x-1"
         outputClassName="slider-output w-fit px-1 text-center h-fit col-span-1 "
         max={1}
-        step={0.001}
+        step={props.amountStep ?? 0.001}
         defaultValue={props.defaultAmount ?? 1}
         outputValue={amount.toFixed(2)}
         onInput={(value) => {
@@ -48,7 +53,7 @@ export function Envelope(props: EnvelopeProps) {
           className="flex h-full flex-col items-center gap-1 bg-zinc-700 p-1"
           orientation="vertical"
           max={1}
-          step={0.001}
+          step={props.attackStep ?? 0.001}
           defaultValue={props.defaultAttack ?? 0}
           outputValue={Utils.linToExp2(attack * 5, 0, 4).toFixed(2)}
           onInput={(value) => {
@@ -61,7 +66,7 @@ export function Envelope(props: EnvelopeProps) {
           className="flex h-full flex-col items-center gap-1 bg-zinc-700 p-1"
           orientation="vertical"
           max={1}
-          step={0.001}
+          step={props.decayStep ?? 0.001}
           defaultValue={props.defaultDecay ?? 0}
           outputValue={(decay * 5).toFixed(2)}
           onInput={(value) => {
@@ -75,7 +80,7 @@ export function Envelope(props: EnvelopeProps) {
           orientation="vertical"
           max={1}
           defaultValue={props.defaultSustain ?? 1}
-          step={0.001}
+          step={props.sustainStep ?? 0.001}
           outputValue={sustain.toFixed(2)}
           onInput={(value) => {
             if (props.onSustainChange) props.onSustainChange(value);
@@ -87,7 +92,7 @@ export function Envelope(props: EnvelopeProps) {
           className="flex h-full flex-col items-center gap-1 bg-zinc-700 p-1"
           orientation="vertical"
           max={1}
-          step={0.001}
+          step={props.releaseStep ?? 0.001}
           defaultValue={props.defaultRelease ?? 0}
           outputValue={(release * 5).toFixed(2)}
           onInput={(value) => {

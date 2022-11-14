@@ -67,7 +67,6 @@ export class EnvelopeModule extends Module {
     // Para a curva atual
     this.node.offset.cancelScheduledValues(this.currentTime());
     // Inicia a curva de "release" até o valor mínimo
-    if (this.maxValue > 1) console.log(this.node.offset.value);
     this.node.offset.setValueAtTime(this.node.offset.value, this.currentTime());
     this.node.offset.exponentialRampToValueAtTime(
       this.minValue,
@@ -93,7 +92,7 @@ export class EnvelopeModule extends Module {
     return Math.max(this._release * 2, this.minValue);
   }
   set amount(value: number) {
-    value = Math.max(this.minValue, Math.min(value, this.maxValue));
+    value = Math.min(value || this.minValue, this.maxValue);
     this._amount = value;
     this._amountNode.gain.setValueAtTime(value, this.currentTime());
   }

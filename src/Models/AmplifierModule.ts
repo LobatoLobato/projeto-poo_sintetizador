@@ -6,11 +6,12 @@ export class AmplifierModule extends Module {
     gain: this.minValue,
   });
   public readonly envelope: EnvelopeModule = new EnvelopeModule(1, 0.22);
-  private _level: number = this.minValue;
+  private _level: number = 0.22;
 
   constructor() {
     super();
     this.envelope.connect(this.node.gain);
+    this.envelope.amount = 0.22;
   }
 
   /**
