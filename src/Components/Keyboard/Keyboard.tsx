@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createGlobalstate, useGlobalState } from "state-pool";
 import { KeyboardHandler } from "models";
 import "./keyboard.scss";
-import { Slider } from "components/Slider";
+import { Slider } from "components";
 import { Utils } from "common";
 
 const kbdKeys: string[] = KeyboardHandler.kbdKeys;

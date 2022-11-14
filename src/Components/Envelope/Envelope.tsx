@@ -63,7 +63,7 @@ export function Envelope(props: EnvelopeProps) {
           orientation="vertical"
           max={1}
           step={0.001}
-          outputValue={Utils.linToExp2(decay * 5, 0, 4).toFixed(2)}
+          outputValue={decay * 5}
           onInput={(value) => {
             if (onDecayChange) onDecayChange(value);
             setDecay(value);
@@ -76,7 +76,7 @@ export function Envelope(props: EnvelopeProps) {
           max={1}
           defaultValue={1}
           step={0.001}
-          outputValue={Utils.linToExp2(sustain, 0, 1).toFixed(2)}
+          outputValue={sustain}
           onInput={(value) => {
             if (onSustainChange) onSustainChange(value);
             setSustain(value);
@@ -88,7 +88,7 @@ export function Envelope(props: EnvelopeProps) {
           orientation="vertical"
           max={1}
           step={0.001}
-          outputValue={Utils.linToExp2(release * 5, 0, 4).toFixed(2)}
+          outputValue={release * 5}
           onInput={(value) => {
             if (onReleaseChange) onReleaseChange(value);
             setRelease(value);

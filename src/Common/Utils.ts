@@ -23,4 +23,12 @@ export class Utils {
     const frequency = 16.35 * 2 ** (index / 12);
     return frequency;
   }
+  /**
+   *
+   * @param element O elemento HTML
+   * @returns Largura do elemento
+   */
+  public static elementWidth(element: Element): number {
+    return element.getBoundingClientRect().width;
+  }
 }

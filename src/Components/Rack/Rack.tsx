@@ -42,14 +42,13 @@ export function Rack(props: RackProps) {
       <Oscillator
         onMount={setOscillator}
         connectTo={amplifier?.node}
-        noteOn={noteOn.note}
+        noteOn={noteOn}
+        noteOff={noteOff}
       />
       <Amplifier
         onMount={setAmplifier}
         connectTo={Module.context?.destination}
       />
-      implementar o portamento com set value at time linearvalue at time sla
-      whatever
       {/* </>
       ) : (
         ""
