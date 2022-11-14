@@ -1,9 +1,10 @@
-import { Module } from "./Module";
+import { Module, EnvelopeModule } from "models";
 
 type UnisonNode = [OscillatorNode, GainNode, PannerNode];
 
 export class OscillatorModule extends Module {
   public readonly node: OscillatorNode = new OscillatorNode(Module.context);
+  public readonly envelope: EnvelopeModule = new EnvelopeModule(1000);
   private _unisonNodes: UnisonNode[] = [];
   private _unisonDetuneValues: number[] = [];
   private _maxDetune: number = 0.5;
@@ -18,6 +19,10 @@ export class OscillatorModule extends Module {
   private _portamentoOn: boolean = false;
   private _running: boolean = false;
 
+  constructor() {
+    super();
+    this.envelope.connect(this.node.frequency);
+  }
   private createUnisonNodes(size: number, gain: number): UnisonNode[] {
     const detuneIncrement = this._maxDetune / size;
     const panIncrement = this._unisonSpread / size;
@@ -108,7 +113,7 @@ export class OscillatorModule extends Module {
         osc.frequency.exponentialRampToValueAtTime(frequency, portamentoTime);
       });
     } else {
-      this.node.frequency.value = frequency;
+      this.node.frequency.setValueAtTime(frequency, this.minValue);
       this._unisonNodes.forEach(([osc]) => (osc.frequency.value = frequency));
     }
   }
