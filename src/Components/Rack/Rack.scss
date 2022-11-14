@@ -1,3 +1,8 @@
 .rack {
-  @apply flex h-full gap-2 overflow-auto bg-green-400;
+  @apply flex h-full gap-0.5 bg-zinc-900
+  scrollbar-thin scrollbar-track-[#ffffff30] scrollbar-thumb-[#ffffff60];
+  overflow: hidden;
+}
+.rack:hover {
+  overflow: overlay;
 }

@@ -5,7 +5,7 @@ export class AmplifierModule extends Module {
   public readonly node: GainNode = new GainNode(Module.context, {
     gain: this.minValue,
   });
-  public readonly envelope: EnvelopeModule = new EnvelopeModule(1);
+  public readonly envelope: EnvelopeModule = new EnvelopeModule(1, 0.22);
   private _level: number = this.minValue;
 
   constructor() {

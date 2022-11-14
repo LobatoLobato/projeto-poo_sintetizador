@@ -11,22 +11,19 @@ interface EnvelopeProps {
   onDecayChange?: (value: number) => void;
   onSustainChange?: (value: number) => void;
   onReleaseChange?: (value: number) => void;
+  defaultAmount?: number;
+  defaultAttack?: number;
+  defaultDecay?: number;
+  defaultSustain?: number;
+  defaultRelease?: number;
 }
 export function Envelope(props: EnvelopeProps) {
   const { className } = props;
-  const {
-    onAmountChange,
-    onAttackChange,
-    onDecayChange,
-    onSustainChange,
-    onReleaseChange,
-  } = props;
-
-  const [amount, setAmount] = useState(1);
-  const [attack, setAttack] = useState(0);
-  const [decay, setDecay] = useState(0);
-  const [sustain, setSustain] = useState(1);
-  const [release, setRelease] = useState(0);
+  const [amount, setAmount] = useState(props.defaultAmount ?? 1);
+  const [attack, setAttack] = useState(props.defaultAttack ?? 0);
+  const [decay, setDecay] = useState(props.defaultAttack ?? 0);
+  const [sustain, setSustain] = useState(props.defaultSustain ?? 1);
+  const [release, setRelease] = useState(props.defaultRelease ?? 0);
 
   return (
     <div className={className}>
@@ -38,9 +35,10 @@ export function Envelope(props: EnvelopeProps) {
         outputClassName="slider-output w-fit px-1 text-center h-fit col-span-1 "
         max={1}
         step={0.001}
+        defaultValue={props.defaultAmount ?? 1}
         outputValue={amount.toFixed(2)}
         onInput={(value) => {
-          if (onAmountChange) onAmountChange(value);
+          if (props.onAmountChange) props.onAmountChange(value);
           setAmount(value);
         }}
       />
@@ -51,9 +49,10 @@ export function Envelope(props: EnvelopeProps) {
           orientation="vertical"
           max={1}
           step={0.001}
+          defaultValue={props.defaultAttack ?? 0}
           outputValue={Utils.linToExp2(attack * 5, 0, 4).toFixed(2)}
           onInput={(value) => {
-            if (onAttackChange) onAttackChange(value);
+            if (props.onAttackChange) props.onAttackChange(value);
             setAttack(value);
           }}
         />
@@ -63,9 +62,10 @@ export function Envelope(props: EnvelopeProps) {
           orientation="vertical"
           max={1}
           step={0.001}
-          outputValue={decay * 5}
+          defaultValue={props.defaultDecay ?? 0}
+          outputValue={(decay * 5).toFixed(2)}
           onInput={(value) => {
-            if (onDecayChange) onDecayChange(value);
+            if (props.onDecayChange) props.onDecayChange(value);
             setDecay(value);
           }}
         />
@@ -74,11 +74,11 @@ export function Envelope(props: EnvelopeProps) {
           className="flex h-full flex-col items-center gap-1 bg-zinc-700 p-1"
           orientation="vertical"
           max={1}
-          defaultValue={1}
+          defaultValue={props.defaultSustain ?? 1}
           step={0.001}
-          outputValue={sustain}
+          outputValue={sustain.toFixed(2)}
           onInput={(value) => {
-            if (onSustainChange) onSustainChange(value);
+            if (props.onSustainChange) props.onSustainChange(value);
             setSustain(value);
           }}
         />
@@ -88,9 +88,10 @@ export function Envelope(props: EnvelopeProps) {
           orientation="vertical"
           max={1}
           step={0.001}
-          outputValue={release * 5}
+          defaultValue={props.defaultRelease ?? 0}
+          outputValue={(release * 5).toFixed(2)}
           onInput={(value) => {
-            if (onReleaseChange) onReleaseChange(value);
+            if (props.onReleaseChange) props.onReleaseChange(value);
             setRelease(value);
           }}
         />

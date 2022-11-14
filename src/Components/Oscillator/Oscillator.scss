@@ -1,6 +1,6 @@
 .oscillator-container {
-  @apply grid h-full min-h-fit w-72 grid-cols-5
-  gap-0.5 bg-zinc-800 px-1 pb-1 text-white;
+  @apply grid h-full min-h-fit w-72 shrink-0
+  grid-cols-5 gap-0.5 bg-zinc-800 px-1 pb-1 text-white;
   grid-template-rows:
     min-content min-content min-content
     min-content auto min-content;

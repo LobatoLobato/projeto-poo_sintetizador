@@ -4,7 +4,7 @@ type UnisonNode = [OscillatorNode, GainNode, PannerNode];
 
 export class OscillatorModule extends Module {
   public readonly node: OscillatorNode = new OscillatorNode(Module.context);
-  public readonly envelope: EnvelopeModule = new EnvelopeModule(1000);
+  public readonly envelope: EnvelopeModule = new EnvelopeModule(1000, 500);
   private _unisonNodes: UnisonNode[] = [];
   private _unisonDetuneValues: number[] = [];
   private _maxDetune: number = 0.5;
@@ -22,6 +22,7 @@ export class OscillatorModule extends Module {
   constructor() {
     super();
     this.envelope.connect(this.node.frequency);
+    this.envelope.attack = 0;
   }
   private createUnisonNodes(size: number, gain: number): UnisonNode[] {
     const detuneIncrement = this._maxDetune / size;

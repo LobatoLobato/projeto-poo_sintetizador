@@ -1,41 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./Amplifier.css";
 import { AmplifierModule } from "models";
+import { Envelope } from "components";
 
 interface Props {
   connectTo: AudioNode | undefined;
   onMount: (module: AmplifierModule) => void;
 }
 export function Amplifier(props: Props) {
-  const [level, setLevel] = useState("0.22");
-  const [attack, setAttack] = useState("0");
-  const [decay, setDecay] = useState("0");
-  const [sustain, setSustain] = useState("1");
-  const [release, setRelease] = useState("0");
   const amplifier = useMemo(() => new AmplifierModule(), []);
-
-  function handleLevelInput(value: number) {
-    // console.log(value);
-    amplifier.level = value;
-    // console.log(amplifier.level);
-    setLevel(amplifier.level.toFixed(2));
-  }
-  function handleAttackInput(value: number) {
-    amplifier.envelope.attack = value;
-    setAttack(amplifier.envelope.attack.toFixed(2));
-  }
-  function handleDecayInput(value: number) {
-    amplifier.envelope.decay = value;
-    setDecay(amplifier.envelope.decay.toFixed(2));
-  }
-  function handleSustainInput(value: number) {
-    amplifier.envelope.sustain = value;
-    setSustain(amplifier.envelope.sustain.toFixed(2));
-  }
-  function handleReleaseInput(value: number) {
-    amplifier.envelope.release = value;
-    setRelease(amplifier.envelope.release.toFixed(2));
-  }
   const { onMount } = props;
   useEffect(() => {
     onMount(amplifier);
@@ -48,69 +21,15 @@ export function Amplifier(props: Props) {
   return (
     <div className="amplifier">
       Amplifier
-      <Slider
-        title="Level"
-        className="amplifier-slider-container"
-        titleClassName="amplifier-slider-title"
-        inputClassName="amplifier-slider"
-        outputClassName="amplifier-slider-value"
-        max={1}
-        step={0.01}
-        defaultValue="0.22"
-        outputValue={level}
-        onInput={handleLevelInput}
+      <Envelope
+        className="flex h-full w-full grow flex-col bg-zinc-700 px-1 text-center text-sm"
+        onAmountChange={(value) => (amplifier.envelope.amount = value)}
+        onAttackChange={(value) => (amplifier.envelope.attack = value * 5)}
+        onDecayChange={(value) => (amplifier.envelope.decay = value * 5)}
+        onSustainChange={(value) => (amplifier.envelope.sustain = value)}
+        onReleaseChange={(value) => (amplifier.envelope.release = value * 5)}
+        defaultAmount={0.22}
       />
-      <div className="amplifier-envelope">
-        Envelope
-        <Slider
-          title="Attack"
-          className="amplifier-slider-container"
-          titleClassName="amplifier-slider-title"
-          inputClassName="amplifier-slider"
-          outputClassName="amplifier-slider-value"
-          max={5}
-          step={0.01}
-          defaultValue={0}
-          outputValue={attack}
-          onInput={handleAttackInput}
-        />
-        <Slider
-          title="Decay"
-          className="amplifier-slider-container"
-          titleClassName="amplifier-slider-title"
-          inputClassName="amplifier-slider"
-          outputClassName="amplifier-slider-value"
-          max={5}
-          step={0.01}
-          defaultValue={0}
-          outputValue={decay}
-          onInput={handleDecayInput}
-        />
-        <Slider
-          title="Sustain"
-          className="amplifier-slider-container"
-          titleClassName="amplifier-slider-title"
-          inputClassName="amplifier-slider"
-          outputClassName="amplifier-slider-value"
-          max={1}
-          step={0.01}
-          defaultValue={1}
-          outputValue={sustain}
-          onInput={handleSustainInput}
-        />
-        <Slider
-          title="Release"
-          className="amplifier-slider-container"
-          titleClassName="amplifier-slider-title"
-          inputClassName="amplifier-slider"
-          outputClassName="amplifier-slider-value"
-          max={5}
-          step={0.01}
-          defaultValue={0}
-          outputValue={release}
-          onInput={handleReleaseInput}
-        />
-      </div>
     </div>
   );
 }

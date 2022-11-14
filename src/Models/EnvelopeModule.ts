@@ -2,11 +2,13 @@ import { Module } from "./Module";
 import { Utils } from "common";
 
 export class EnvelopeModule extends Module {
-  private _amountNode: GainNode = new GainNode(Module.context);
   public readonly node: ConstantSourceNode = new ConstantSourceNode(
     Module.context,
     { offset: this.minValue }
   );
+  private readonly _amountNode: GainNode = new GainNode(Module.context, {
+    gain: this.minValue,
+  });
   private _amount: number = this.maxValue;
   private _attack: number = this.minValue;
   private _decay: number = this.minValue;
@@ -15,11 +17,13 @@ export class EnvelopeModule extends Module {
   private _remainingAttackTime: number = this.minValue;
   private _remainingDecayTime: number = this.minValue;
 
-  constructor(maxValue: number) {
+  constructor(maxValue: number, initialValue?: number) {
     super();
-    maxValue = Math.max(maxValue, this.minValue);
-    this.maxValue = maxValue;
-    this._amountNode.gain.value = maxValue;
+    this.maxValue = Math.max(maxValue, this.minValue);
+    this._amountNode.gain.setValueAtTime(
+      initialValue ?? this.minValue,
+      this.currentTime()
+    );
     this.node.connect(this._amountNode);
     this.node.start();
   }
