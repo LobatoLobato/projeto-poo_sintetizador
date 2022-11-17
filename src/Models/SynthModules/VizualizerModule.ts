@@ -1,6 +1,7 @@
 import { Utils } from "common";
 import * as PIXI from "pixi.js";
-import { Module } from "./Module";
+import { Module } from "models";
+
 
 enum MODE {
   DISABLED,
