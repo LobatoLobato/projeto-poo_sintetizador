@@ -5,3 +5,6 @@ export * from "./Oscillator/Oscillator";
 export * from "./Keyboard/Keyboard";
 export * from "./Slider/Slider";
 export * from "./Envelope/Envelope";
+export * from "./LFO/LFO";
+export * from "./WaveformSelector/WaveformSelector";
+export * from "./Knob/Knob";

@@ -1,20 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./Oscillator.scss";
-import { OscillatorModule } from "models";
+import { ModuleProps, OscillatorModule } from "models";
 import { Utils } from "common";
-import { Envelope, Slider } from "components";
+import { Envelope, Slider, WaveformSelector, Knob } from "components";
 
-interface Props {
-  connectTo: AudioNode | undefined;
-  onMount?: (module: OscillatorModule) => void;
-  noteOn: { note: number; active: boolean };
-  noteOff: { note: number; active: boolean };
-}
-export function Oscillator(props: Props) {
+export function Oscillator(props: ModuleProps<OscillatorModule>) {
   const oscillator = useMemo(() => new OscillatorModule(), []);
-  const [pitch, setPitch] = useState(0);
-  const [detune, setDetune] = useState(0);
-  const { onMount, noteOn, noteOff } = props;
+  const [lfoDepth, setLfoDepth] = useState(0);
+  const { onMount, noteOn, noteOff, connectTo } = props;
 
   useEffect(() => {
     if (onMount) onMount(oscillator);
@@ -22,112 +15,97 @@ export function Oscillator(props: Props) {
   }, [onMount, oscillator]);
 
   useEffect(() => {
-    if (props.connectTo !== undefined) {
-      oscillator.connect(props.connectTo);
+    if (!connectTo) return;
+    if (Array.isArray(connectTo)) {
+      connectTo.forEach((destination) => oscillator.connect(destination));
+    } else {
+      oscillator.connect(connectTo);
     }
-  }, [props.connectTo, oscillator]);
+  }, [connectTo, oscillator]);
 
   useEffect(() => {
-    if (noteOn.note < 0 && !noteOn.active) return;
+    if (!noteOn || (noteOn.note < 0 && !noteOn.active)) return;
     const noteFrequency = Utils.indexToFrequency(noteOn.note);
     oscillator.frequency = noteFrequency;
     oscillator.envelope.start();
   }, [noteOn, oscillator]);
 
   useEffect(() => {
-    if (!noteOff.active) return;
+    if (!noteOff || !noteOff.active) return;
     oscillator.envelope.stop();
   }, [noteOff, oscillator]);
 
   return (
     <div className="oscillator-container">
       <h2>Oscillator</h2>
-      <WaveformSelector onClick={(wave) => (oscillator.type = wave)} />
-      <UnisonThing
-        onSizeChanged={(value) => (oscillator.unisonSize = value)}
-        onDetuneChanged={(value) => (oscillator.unisonDetune = value)}
-        onSpreadChanged={(value) => (oscillator.unisonSpread = value)}
-      />
-      <div className="col-span-2 row-span-2 grid grid-cols-2 gap-0.5">
-        <Slider
-          title="Pitch"
-          titleClassName="text-sm"
-          className="flex h-full flex-col items-center gap-1 bg-zinc-700 p-1"
+      <div className="bunda">
+        <WaveformSelector
+          className="col-span-1 row-span-2"
           orientation="vertical"
-          max={48}
-          defaultValue={24}
-          onInput={(value) => {
-            const offsetValue = value - 24;
-            oscillator.pitchOffset = offsetValue;
-            setPitch(offsetValue);
-          }}
-          outputValue={pitch}
+          onClick={(wave) => (oscillator.type = wave)}
         />
-        <Slider
-          title="Detune"
-          titleClassName="text-sm"
-          className="flex h-full flex-col items-center gap-1 bg-zinc-700 p-1"
-          orientation="vertical"
-          defaultValue={50}
-          onInput={(value) => {
-            oscillator.detune = value - 50;
-            setDetune(value - 50);
-          }}
-          outputValue={detune}
+        <UnisonThing
+          onSizeChanged={(value) => (oscillator.unisonSize = value)}
+          onDetuneChanged={(value) => (oscillator.unisonDetune = value)}
+          onSpreadChanged={(value) => (oscillator.unisonSpread = value)}
         />
+        <div className="col-span-1 row-span-2 grid grid-rows-2 gap-0.5 bg-zinc-700">
+          <Knob
+            className="text-center text-xs"
+            title="Pitch"
+            dragResistance={50}
+            step={1}
+            min={-24}
+            max={24}
+            onValueChange={(value) => (oscillator.pitchOffset = value)}
+          />
+          <Knob
+            className="text-center text-xs"
+            title="Detune"
+            dragResistance={50}
+            step={1}
+            min={-50}
+            max={50}
+            onValueChange={(value) => (oscillator.detune = value)}
+          />
+        </div>
       </div>
       <Envelope
-        className="col-span-full flex h-full w-full grow flex-col bg-zinc-700 px-1 text-center text-sm"
-        onAmountChange={(value) => {
-          oscillator.envelope.amount = value * 1000 - 500;
+        className="col-span-full flex  w-full grow flex-col bg-zinc-700 px-1 text-center text-sm"
+        amount={{
+          indicatorRingType: "split",
+          initial: 0.5,
+          onValueChange: (value) => {
+            oscillator.envelope.amount = value * 1000 - 500;
+          },
         }}
-        onAttackChange={(value) => (oscillator.envelope.attack = value * 5)}
-        onDecayChange={(value) => (oscillator.envelope.decay = value * 5)}
-        onSustainChange={(value) => (oscillator.envelope.sustain = value)}
-        onReleaseChange={(value) => (oscillator.envelope.release = value * 5)}
-        defaultAmount={0.5}
-        amountStep={0.01}
-        defaultSustain={0}
+        attack={{
+          onValueChange: (value) => (oscillator.envelope.attack = value * 5),
+        }}
+        decay={{
+          onValueChange: (value) => (oscillator.envelope.decay = value * 5),
+        }}
+        sustain={{
+          onValueChange: (value) => (oscillator.envelope.sustain = value),
+        }}
+        release={{
+          onValueChange: (value) => (oscillator.envelope.release = value * 5),
+        }}
       />
       <Slider
-        title="LFO Amount"
+        title="LFO Depth"
         titleClassName="text-xs whitespace-nowrap"
-        className="col-span-full flex h-fit w-full items-center gap-x-1  bg-zinc-700 p-1"
+        className="col-span-full flex max-h-fit w-full items-center gap-x-1  bg-zinc-700 p-1"
         outputClassName="slider-output w-fit px-1 text-center h-fit col-span-1 "
-        outputValue={10}
+        max={1}
+        step={0.01}
+        outputValue={lfoDepth.toFixed(2)}
+        onInput={(value) => {
+          value = Utils.linToExp2(value, 0, 2);
+          oscillator.lfoAmount = value;
+          setLfoDepth(value);
+        }}
       />
-    </div>
-  );
-}
-interface WaveformSelectorProps {
-  onClick: (wave: OscillatorType) => void;
-}
-function WaveformSelector(props: WaveformSelectorProps) {
-  const waveformIcons = useRef<HTMLDivElement>(null);
-  const waveForms = ["Sine", "Triangle", "Sawtooth", "Square"];
-  const iconsUrl = `https://www.iconbolt.com/iconsets/phosphor-regular`;
-
-  function handleOnClick(ev: React.MouseEvent, wave: string) {
-    const icons = waveformIcons.current!.querySelectorAll("img");
-    icons.forEach((icon) => icon.classList.remove("selected"));
-    ev.currentTarget.children[0].classList.add("selected");
-    props.onClick(wave as OscillatorType);
-  }
-
-  function createIcon(wave: string, index: number) {
-    const src = `${iconsUrl}/wave-${wave.toLowerCase()}.svg`;
-    const className = `waveform-icon ${index === 0 ? "selected" : ""}`;
-    return (
-      <button key={wave} onClick={(ev) => handleOnClick(ev, wave)}>
-        <img className={className} alt={wave} src={src} />
-      </button>
-    );
-  }
-  return (
-    <div className="waveform-selector">
-      <div ref={waveformIcons} className="waveform-icon-container">
-        {waveForms.map(createIcon)}
-      </div>
     </div>
   );
 }
@@ -159,25 +137,18 @@ function UnisonThing(props: UnisonProps) {
     }
     return <>{bars}</>;
   }
-  function handleIncrement() {
-    if (size < 14) {
-      setSize(size + 2);
-      props.onSizeChanged(size + 2);
-    }
-  }
-  function handleDecrement() {
-    if (size >= 2) {
-      setSize(size - 2);
-      props.onSizeChanged(size - 2);
-    }
+
+  function handleSizeChange(value: number) {
+    setSize(value);
+    props.onSizeChanged(value);
   }
   function handleDetuneChange(value: number) {
-    setDetune(value);
-    props.onDetuneChanged(value);
+    setDetune(value * 100);
+    props.onDetuneChanged(value * 100);
   }
   function handleSpreadChange(value: number) {
-    setSpread(value);
-    props.onSpreadChanged(value);
+    setSpread(value * 100);
+    props.onSpreadChanged(value * 100);
   }
   useEffect(() => {
     const [view, bar] = [visualizer.current, middleBar.current];
@@ -201,20 +172,26 @@ function UnisonThing(props: UnisonProps) {
           <div className="v-spread-bar"></div>
         </div>
       </div>
-      <div className="button-container">
-        <button onClick={handleDecrement}>-</button>
-        <button onClick={handleIncrement}>+</button>
+      <Slider
+        max={14}
+        step={2}
+        className="u-slider"
+        onInput={handleSizeChange}
+      />
+      <div className="flex w-full justify-evenly">
+        <Knob
+          className="text-center text-xs"
+          title="Detune"
+          onValueChange={handleDetuneChange}
+          dragResistance={50}
+        />
+        <Knob
+          className="text-center text-xs"
+          title="Spread"
+          onValueChange={handleSpreadChange}
+          dragResistance={50}
+        />
       </div>
-      <Slider
-        title="Detune"
-        className="u-slider"
-        onInput={handleDetuneChange}
-      />
-      <Slider
-        title="Spread"
-        className="u-slider"
-        onInput={handleSpreadChange}
-      />
     </div>
   );
 }

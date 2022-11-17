@@ -1,0 +1,24 @@
+.waveform-selector {
+  @apply flex  w-full items-center justify-center rounded-sm bg-zinc-700 px-1 text-sm;
+  .waveform-icon-container {
+    @apply flex w-full justify-evenly items-center gap-2 text-white;
+
+    button {
+      @apply h-fit w-fit bg-zinc-700 p-1 hover:bg-zinc-600;
+      .waveform-icon {
+        @apply w-5;
+        filter: invert(100%);
+      }
+      .waveform-icon.selected {
+        filter: invert(7%) sepia(100%) saturate(7466%) hue-rotate(160deg)
+          brightness(200%) contrast(115%);
+      }
+    }
+  }
+  .waveform-icon-container.vertical {
+    @apply flex-col h-full;
+  }
+}
+.waveform-selector.vertical {
+  @apply flex-col h-full;
+}

@@ -1,0 +1,4 @@
+.lfo-container {
+  @apply flex h-2/3 min-h-fit w-72 shrink-0 flex-col gap-0.5
+  overflow-hidden bg-zinc-800 px-1 pb-1 text-center text-white;
+}

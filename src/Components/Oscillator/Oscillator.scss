@@ -1,64 +1,40 @@
 .oscillator-container {
-  @apply grid h-full min-h-fit w-72 shrink-0
-  grid-cols-5 gap-0.5 bg-zinc-800 px-1 pb-1 text-white;
-  grid-template-rows:
-    min-content min-content min-content
-    min-content auto min-content;
+  @apply flex h-2/3 min-h-fit w-72 shrink-0
+  flex-col gap-0.5 bg-zinc-800 px-1 pb-1 text-white;
   h2 {
     @apply col-span-5 h-fit text-center;
   }
-  .waveform-selector {
-    @apply col-span-5 flex h-fit w-full items-center rounded-sm bg-zinc-700 px-1 text-sm;
-    .waveform-icon-container {
-      @apply flex w-full justify-evenly gap-2 text-white;
-
-      button {
-        @apply h-fit w-fit bg-zinc-700 p-1 hover:bg-zinc-600;
-        .waveform-icon {
-          @apply w-5;
-          filter: invert(100%);
-        }
-        .waveform-icon.selected {
-          filter: invert(7%) sepia(100%) saturate(7466%) hue-rotate(160deg)
-            brightness(200%) contrast(115%);
-        }
-      }
-    }
-  }
-  .unison-container {
-    @apply relative col-span-3 row-span-2 flex w-full flex-col items-center justify-between
+  .bunda {
+    @apply grid grid-cols-5 gap-0.5 h-1/2;
+    .unison-container {
+      @apply relative col-span-3 row-span-2 flex w-full flex-col items-center justify-between
     gap-1 overflow-hidden rounded-sm bg-zinc-700 px-1 py-1 text-sm text-white;
 
-    .visualizer {
-      @apply relative flex h-7 w-full justify-center
+      .visualizer {
+        @apply relative flex h-7 w-full justify-center
         overflow-hidden rounded-sm bg-zinc-600;
-      .v-bar {
-        @apply z-10 mt-1 h-10 w-1 shrink-0 bg-yellow-400 bg-opacity-90 
+        .v-bar {
+          @apply z-10 mt-1 h-10 w-1 shrink-0 bg-yellow-400 bg-opacity-90 
           shadow-inner shadow-zinc-600;
-      }
-      .v-bar.edge {
-        @apply mt-2 bg-red-600;
-      }
-      .v-bar.middle {
-        @apply mt-0.5 bg-green-600;
-      }
-      .v-spread {
-        @apply absolute flex h-full items-end justify-center
+        }
+        .v-bar.edge {
+          @apply mt-2 bg-red-600;
+        }
+        .v-bar.middle {
+          @apply mt-0.5 bg-green-600;
+        }
+        .v-spread {
+          @apply absolute flex h-full items-end justify-center
           overflow-hidden rounded-sm opacity-30;
-        background: linear-gradient(to right, #02c80c, #026207, #02c80c);
-        .v-spread-bar {
-          @apply h-1 w-full bg-[#00ff0d] opacity-100;
+          background: linear-gradient(to right, #02c80c, #026207, #02c80c);
+          .v-spread-bar {
+            @apply h-1 w-full bg-[#00ff0d] opacity-100;
+          }
         }
       }
-    }
-    .button-container {
-      @apply flex w-full gap-1 text-xs;
-      button {
-        @apply w-1/2 rounded-sm border-2 border-black text-white hover:bg-zinc-500;
+      .u-slider {
+        @apply flex w-full flex-col items-center bg-zinc-700;
       }
-    }
-    .u-slider {
-      @apply flex w-full flex-col items-center bg-zinc-700;
     }
   }
 }

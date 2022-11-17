@@ -1,12 +1,12 @@
-import { Module } from "./Module";
+import { Module } from "models";
 import { Utils } from "common";
 
 export class EnvelopeModule extends Module {
-  public readonly node: ConstantSourceNode = new ConstantSourceNode(
+  private readonly source: ConstantSourceNode = new ConstantSourceNode(
     Module.context,
     { offset: this.minValue }
   );
-  private readonly _amountNode: GainNode = new GainNode(Module.context, {
+  public readonly node: GainNode = new GainNode(Module.context, {
     gain: this.minValue,
   });
   private _amount: number = this.maxValue;
@@ -20,41 +20,29 @@ export class EnvelopeModule extends Module {
   constructor(maxValue: number, initialValue?: number) {
     super();
     this.maxValue = Math.max(maxValue, this.minValue);
-    this._amountNode.gain.setValueAtTime(
+    this.node.gain.setValueAtTime(
       initialValue ?? this.minValue,
       this.currentTime()
     );
-    this.node.connect(this._amountNode);
-    this.node.start();
+    this.source.connect(this.node);
+    this.source.start();
   }
-  /**
-   * Conecta o envelope a um nó de audio ou ao parametro de um nó de audio
-   * @param destination Nó de destino da conexão
-   */
-  public connect(destination: AudioNode | AudioParam): void {
-    if (destination instanceof AudioNode) {
-      this._amountNode.connect(destination);
-    }
-    if (destination instanceof AudioParam) {
-      this._amountNode.connect(destination);
-    }
-    this._destination = destination;
-  }
+
   /**
    * Inicia o envelope
    */
   public start(): void {
     // Para a curva atual
-    this.node.offset.cancelScheduledValues(this.currentTime());
+    this.source.offset.cancelScheduledValues(this.currentTime());
     // Inicia a curva de "attack" até o valor máximo
     this._remainingAttackTime = this.currentTime() + this.attack;
-    this.node.offset.setValueAtTime(this.minValue, this.currentTime());
-    this.node.offset.linearRampToValueAtTime(
+    this.source.offset.setValueAtTime(this.minValue, this.currentTime());
+    this.source.offset.linearRampToValueAtTime(
       1,
       this.currentTime() + this.attack
     );
-    setTimeout(() => console.log(this.node.offset), this.attack * 500);
-    this.node.offset.exponentialRampToValueAtTime(
+
+    this.source.offset.exponentialRampToValueAtTime(
       this.sustain,
       this.currentTime() + this.attack + this.decay
     );
@@ -65,10 +53,13 @@ export class EnvelopeModule extends Module {
    */
   public stop(): void {
     // Para a curva atual
-    this.node.offset.cancelScheduledValues(this.currentTime());
+    this.source.offset.cancelScheduledValues(this.currentTime());
     // Inicia a curva de "release" até o valor mínimo
-    this.node.offset.setValueAtTime(this.node.offset.value, this.currentTime());
-    this.node.offset.exponentialRampToValueAtTime(
+    this.source.offset.setValueAtTime(
+      this.source.offset.value,
+      this.currentTime()
+    );
+    this.source.offset.exponentialRampToValueAtTime(
       this.minValue,
       this.currentTime() + this.release
     );
@@ -94,7 +85,8 @@ export class EnvelopeModule extends Module {
   set amount(value: number) {
     value = Math.min(value || this.minValue, this.maxValue);
     this._amount = value;
-    this._amountNode.gain.setValueAtTime(value, this.currentTime());
+    this.node.gain.setValueAtTime(value, this.currentTime());
+    console.log(value);
   }
   set attack(value: number) {
     this._attack = value;
@@ -107,20 +99,20 @@ export class EnvelopeModule extends Module {
     this._sustain = value;
 
     if (this._remainingAttackTime > this.currentTime()) {
-      this.node.offset.cancelScheduledValues(this.currentTime());
-      this.node.offset.linearRampToValueAtTime(
+      this.source.offset.cancelScheduledValues(this.currentTime());
+      this.source.offset.linearRampToValueAtTime(
         this.maxValue,
         this._remainingAttackTime
       );
-      this.node.offset.exponentialRampToValueAtTime(
+      this.source.offset.exponentialRampToValueAtTime(
         this.maxValue * value,
         this._remainingDecayTime
       );
       return;
     }
     if (this._remainingDecayTime === this.minValue) return;
-    this.node.offset.cancelScheduledValues(this.currentTime());
-    this.node.offset.exponentialRampToValueAtTime(
+    this.source.offset.cancelScheduledValues(this.currentTime());
+    this.source.offset.exponentialRampToValueAtTime(
       this.maxValue * value,
       this._remainingDecayTime
     );

@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import "./Rack.scss";
-import { AmplifierModule, Module, OscillatorModule } from "models";
-import { Amplifier, Oscillator } from "components";
-// import { createGlobalstate, useGlobalState } from "state-pool";
-// let globalWindowWidth = createGlobalstate(window.innerWidth);
-// window.addEventListener("resize", () => {
-//   globalWindowWidth.setValue(window.innerWidth);
-// });
+import { AmplifierModule, LFOModule, Module, OscillatorModule } from "models";
+import { Amplifier, Oscillator, LFO } from "components";
+
 interface RackProps {
   noteOn: { note: number; active: boolean };
   noteOff: { note: number; active: boolean };
@@ -14,21 +10,22 @@ interface RackProps {
   legatoOn: boolean;
 }
 export function Rack(props: RackProps) {
-  // const [windowWidth] = useGlobalState<number>(globalWindowWidth);
+  const [lfo, setLfo] = useState<LFOModule>();
   const [oscillator, setOscillator] = useState<OscillatorModule>();
   const [amplifier, setAmplifier] = useState<AmplifierModule>();
   const [prevNoteState, setPrevNoteState] = useState(false);
   const { noteOn, noteOff, portamento, legatoOn } = props;
-
   useEffect(() => {
-    if (amplifier && noteOn.active && (!prevNoteState || !legatoOn)) {
-      amplifier.start();
+    if (noteOn.active && (!prevNoteState || !legatoOn)) {
+      if (amplifier) amplifier.start();
+      if (lfo) lfo.start();
       setPrevNoteState(true);
-    } else if (amplifier && noteOff.active) {
-      amplifier.stop();
+    } else if (noteOff.active) {
+      if (amplifier) amplifier.stop();
+      if (lfo) lfo.stop();
       setPrevNoteState(false);
     }
-  }, [noteOn, amplifier, noteOff, prevNoteState, legatoOn]);
+  }, [noteOn, amplifier, lfo, noteOff, prevNoteState, legatoOn]);
   useEffect(() => {
     if (oscillator) {
       oscillator.portamentoOn = portamento.on;
@@ -37,22 +34,23 @@ export function Rack(props: RackProps) {
   }, [portamento, oscillator]);
   return (
     <div className="rack">
-      {/* {windowWidth > 600 ? (
-        <> */}
+      <LFO
+        onMount={setLfo}
+        connectTo={[amplifier?.lfoInputNode, oscillator?.lfoInputNode]}
+        noteOn={noteOn}
+        noteOff={noteOff}
+      />
       <Oscillator
         onMount={setOscillator}
-        connectTo={amplifier?.node}
+        connectTo={amplifier?.inputNode}
         noteOn={noteOn}
         noteOff={noteOff}
       />
       <Amplifier
         onMount={setAmplifier}
         connectTo={Module.context?.destination}
+        noteOn={noteOn}
       />
-      {/* </>
-      ) : (
-        ""
-      )} */}
     </div>
   );
 }

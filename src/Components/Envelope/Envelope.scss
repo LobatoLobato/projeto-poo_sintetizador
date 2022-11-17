@@ -1,0 +1,6 @@
+.envelope-knobs {
+  @apply flex h-full w-full justify-between px-2 py-1;
+  .envelope-knob {
+    @apply text-center text-xs w-1/6;
+  }
+}

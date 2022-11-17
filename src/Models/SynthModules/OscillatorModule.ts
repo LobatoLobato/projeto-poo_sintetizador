@@ -1,10 +1,14 @@
-import { Module, EnvelopeModule } from "models";
+import { Module, EnvelopeModule, Modulatable } from "models";
 
 type UnisonNode = [OscillatorNode, GainNode, PannerNode];
 
-export class OscillatorModule extends Module {
+export class OscillatorModule extends Module implements Modulatable {
+  public readonly lfoInputNode: GainNode = new GainNode(Module.context, {
+    gain: this.minValue,
+  });
   public readonly node: OscillatorNode = new OscillatorNode(Module.context);
   public readonly envelope: EnvelopeModule = new EnvelopeModule(1000, 0);
+  private readonly _maxLFOAmount: number = 400;
   private _unisonNodes: UnisonNode[] = [];
   private _unisonDetuneValues: number[] = [];
   private _maxDetune: number = 0.5;
@@ -23,6 +27,10 @@ export class OscillatorModule extends Module {
     super();
     this.envelope.connect(this.node.frequency);
     this.envelope.sustain = 0;
+    this.lfoInputNode.connect(this.node.frequency);
+    this._unisonNodes.forEach((node) =>
+      this.lfoInputNode.connect(node[0].frequency)
+    );
   }
   private createUnisonNodes(size: number, gain: number): UnisonNode[] {
     const detuneIncrement = this._maxDetune / size;
@@ -60,6 +68,9 @@ export class OscillatorModule extends Module {
       setTimeout(() => osc.stop(), 0.06);
     });
     this._unisonNodes = unisonNodes;
+    this._unisonNodes.forEach((node) =>
+      this.lfoInputNode.connect(node[0].frequency)
+    );
     return unisonNodes;
   }
 
@@ -67,10 +78,21 @@ export class OscillatorModule extends Module {
    * Conecta o oscilador a um nó de audio
    * @param destination Nó de destino da conexão
    */
-  public connect(destination: AudioNode): void {
+  public connect(destination?: AudioNode | AudioParam, output?: number): void {
+    if (!destination) return;
+    if (destination instanceof AudioNode) {
+      this.node.connect(destination, output);
+      this._unisonNodes.forEach(([_, gain]) =>
+        gain.connect(destination, output)
+      );
+    }
+    if (destination instanceof AudioParam) {
+      this.node.connect(destination, output);
+      this._unisonNodes.forEach(([_, gain]) =>
+        gain.connect(destination, output)
+      );
+    }
     this._destination = destination;
-    this.node.connect(destination);
-    this._unisonNodes.forEach(([_, gain]) => gain.connect(destination));
   }
   /**
    * Inicia o oscilador
@@ -150,12 +172,15 @@ export class OscillatorModule extends Module {
       pan.positionX.value = osc.detune.value * spread;
     });
   }
-
   public set portamentoOn(on: boolean) {
     this._portamentoOn = on;
   }
   public set portamentoTime(time: number) {
     this._portamentoTime = time;
+  }
+  public set lfoAmount(value: number) {
+    value = Math.max(this.minValue, Math.min(value, this._maxLFOAmount));
+    this.lfoInputNode.gain.value = value * this._maxLFOAmount;
   }
   public get type(): OscillatorType {
     return this._type;
