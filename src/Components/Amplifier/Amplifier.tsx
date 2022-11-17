@@ -1,66 +1,72 @@
-import React, { useEffect, useMemo, useState } from "react";
-import "./Amplifier.css";
-import { AmplifierModule } from "models";
-import { Envelope } from "components";
+import { useEffect, useMemo, useState } from "react";
+import "./Amplifier.scss";
+import { AmplifierModule, ModuleProps } from "models";
+import { Envelope, Slider, AudioVisualizer } from "components";
+import { Utils } from "common";
 
-interface Props {
-  connectTo: AudioNode | undefined;
-  onMount: (module: AmplifierModule) => void;
-}
-export function Amplifier(props: Props) {
+export function Amplifier(props: ModuleProps<AmplifierModule>) {
   const amplifier = useMemo(() => new AmplifierModule(), []);
-  const { onMount } = props;
+  const [lfoDepth, setLfoDepth] = useState(0);
+  const { onMount, connectTo, noteOn } = props;
+
   useEffect(() => {
-    onMount(amplifier);
+    if (onMount) onMount(amplifier);
   }, [onMount, amplifier]);
 
   useEffect(() => {
-    if (props.connectTo) amplifier.connect(props.connectTo);
-  }, [props.connectTo, amplifier]);
-
+    if (!connectTo || !amplifier) return;
+    if (Array.isArray(connectTo)) {
+      connectTo.forEach((destination) => amplifier.connect(destination));
+    } else {
+      amplifier.connect(connectTo);
+    }
+  }, [connectTo, amplifier]);
   return (
     <div className="amplifier">
       Amplifier
+      <div className="visualizer-container">
+        <AudioVisualizer
+          className="visualizer"
+          onMount={(node) => amplifier.connect(node)}
+          frequency={Utils.indexToFrequency(noteOn ? noteOn.note : 0)}
+        />
+      </div>
       <Envelope
-        className="flex h-full w-full grow flex-col bg-zinc-700 px-1 text-center text-sm"
-        onAmountChange={(value) => (amplifier.envelope.amount = value)}
-        onAttackChange={(value) => (amplifier.envelope.attack = value * 5)}
-        onDecayChange={(value) => (amplifier.envelope.decay = value * 5)}
-        onSustainChange={(value) => (amplifier.envelope.sustain = value)}
-        onReleaseChange={(value) => (amplifier.envelope.release = value * 5)}
-        defaultAmount={0.22}
-      />
-    </div>
-  );
-}
-interface SliderProps {
-  className?: string;
-  inputClassName?: string;
-  outputClassName?: string;
-  titleClassName?: string;
-  title?: string;
-  max?: number | string;
-  min?: number | string;
-  step?: number | string;
-  defaultValue?: number | string;
-  outputValue?: number | string;
-  onInput?: (value: number) => void;
-}
-function Slider(props: SliderProps) {
-  return (
-    <div className={props.className}>
-      <label className={props.titleClassName}>{props.title}</label>
-      <input
-        className={props.inputClassName}
-        type="range"
-        max={props.max}
-        step={props.step}
-        defaultValue={props.defaultValue}
-        onInput={(ev) => {
-          if (props.onInput) props.onInput(ev.currentTarget.valueAsNumber);
+        className="flex h-fit w-full grow flex-col bg-zinc-700 px-1 pb-1 text-center text-sm"
+        amount={{
+          initial: 0.22,
+          onValueChange: (value) => {
+            amplifier.envelope.amount = value;
+          },
+        }}
+        attack={{
+          onValueChange: (value) => (amplifier.envelope.attack = value * 5),
+        }}
+        decay={{
+          onValueChange: (value) => (amplifier.envelope.decay = value * 10),
+        }}
+        sustain={{
+          initial: 1,
+          onValueChange: (value) => (amplifier.envelope.sustain = value),
+        }}
+        release={{
+          onValueChange: (value) => (amplifier.envelope.release = value * 10),
         }}
       />
-      <output className={props.outputClassName}>{props.outputValue}</output>
+      <Slider
+        title="LFO Depth"
+        titleClassName="text-xs whitespace-nowrap"
+        className="flex h-fit w-full items-center gap-x-1 bg-zinc-700 p-1"
+        outputClassName="slider-output w-fit px-1 text-center h-fit"
+        max={2}
+        step={0.01}
+        outputValue={lfoDepth.toFixed(2)}
+        onInput={(value) => {
+          value = Utils.linToExp2(value, 0, 3);
+          setLfoDepth(value);
+          amplifier.lfoAmount = value;
+        }}
+      />
     </div>
   );
 }

@@ -6,3 +6,4 @@ export * from "./SynthModules/LFOModule";
 export type { ModuleProps } from "./SynthModules/ModuleProps";
 export type { Modulatable } from "./SynthModules/Modulatable";
 export * from "./KeyboardHandler";
+export * from "./SynthModules/VizualizerModule";
