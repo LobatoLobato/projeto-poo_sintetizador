@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./Rack.scss";
 import { AmplifierModule, LFOModule, Module, OscillatorModule } from "models";
 import { Amplifier, Oscillator, LFO } from "components";
+import { useGlobalState } from "state-pool";
+import { LOAD_PRESET, SAVE_PRESET } from "../NavBar/NavBar";
 
 interface RackProps {
   noteOn: { note: number; active: boolean };
@@ -14,7 +16,10 @@ export function Rack(props: RackProps) {
   const [oscillator, setOscillator] = useState<OscillatorModule>();
   const [amplifier, setAmplifier] = useState<AmplifierModule>();
   const [prevNoteState, setPrevNoteState] = useState(false);
+  const [savePreset] = useGlobalState<boolean>(SAVE_PRESET);
+  const [loadPreset] = useGlobalState<boolean>(LOAD_PRESET);
   const { noteOn, noteOff, portamento, legatoOn } = props;
+
   useEffect(() => {
     if (noteOn.active && (!prevNoteState || !legatoOn)) {
       if (amplifier) amplifier.start();
@@ -39,17 +44,23 @@ export function Rack(props: RackProps) {
         connectTo={[amplifier?.lfoInputNode, oscillator?.lfoInputNode]}
         noteOn={noteOn}
         noteOff={noteOff}
+        savePreset={savePreset}
+        loadPreset={loadPreset}
       />
       <Oscillator
         onMount={setOscillator}
         connectTo={amplifier?.inputNode}
         noteOn={noteOn}
         noteOff={noteOff}
+        savePreset={savePreset}
+        loadPreset={loadPreset}
       />
       <Amplifier
         onMount={setAmplifier}
         connectTo={Module.context?.destination}
         noteOn={noteOn}
+        savePreset={savePreset}
+        loadPreset={loadPreset}
       />
     </div>
   );
