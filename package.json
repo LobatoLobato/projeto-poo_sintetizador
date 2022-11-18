@@ -39,7 +39,8 @@
     "@types/node": "^16.18.3",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
-    "pixi.js":"^7.0.4",
+    "file-saver": "^2.0.5",
+    "pixi.js": "^7.0.4",
     "precision-inputs": "^1.0.0",
     "prettier-plugin-tailwindcss": "^0.1.13",
     "react": "^18.2.0",
@@ -52,6 +53,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.5",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.18",
     "tailwind-scrollbar": "^2.0.1",
