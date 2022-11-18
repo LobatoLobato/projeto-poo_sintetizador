@@ -3,4 +3,6 @@ export interface ModuleProps<T> {
   onMount?: (module: T) => void;
   noteOn?: { note: number; active: boolean };
   noteOff?: { note: number; active: boolean };
+  savePreset?: boolean;
+  loadPreset?: boolean;
 }

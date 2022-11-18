@@ -86,7 +86,6 @@ export class EnvelopeModule extends Module {
     value = Math.min(value || this.minValue, this.maxValue);
     this._amount = value;
     this.node.gain.setValueAtTime(value, this.currentTime());
-    console.log(value);
   }
   set attack(value: number) {
     this._attack = value;

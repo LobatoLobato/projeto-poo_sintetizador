@@ -37,7 +37,13 @@ export default function InputRange(props: Props) {
   }, [values, orientation, min, max, colors]);
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      onDoubleClick={() => {
+        setValues([(max ?? 100) - (defaultValue ?? min ?? 0)]);
+        if (props.onChange) props.onChange(defaultValue ?? min ?? 0);
+      }}
+    >
       <Range
         direction={direction}
         step={step}

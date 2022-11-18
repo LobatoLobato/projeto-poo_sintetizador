@@ -8,14 +8,14 @@ export interface KnobProps extends FLStandardKnobOptions {
   className?: string;
   title?: string;
   onValueChange?: (value: number) => void;
+  onMount?: (knob: FLStandardKnob) => void;
 }
 export function Knob(props: KnobProps) {
   const knobContainer = useRef<HTMLDivElement>(null);
-  const { className, title, onValueChange } = props;
+  const { className, title, onValueChange, onMount } = props;
   // const deps = Object.entries(props).filter(([name]) => {
   //   return name !== "onValueChange";
   // });
-
   useEffect(
     () => {
       if (!knobContainer.current) return;
@@ -35,9 +35,10 @@ export function Knob(props: KnobProps) {
       knob.addEventListener("wheel", (ev) => {
         if (onValueChange) onValueChange(knob.value);
       });
+      if (onMount) onMount(knob);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [onMount]
   );
   /*Object.fromEntries(deps)*/
 
