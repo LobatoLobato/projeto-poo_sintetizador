@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Range, Direction, getTrackBackground } from "react-range";
 interface Props {
   onChange?: (value: number) => void;
@@ -12,9 +12,10 @@ interface Props {
   trackClassName?: string;
   progressClassname?: string;
   thumbClassname?: string;
+  value?: number;
 }
-export default function InputRange(props: Props) {
-  const { orientation, defaultValue, step, min, max, colors } = props;
+export function InputRange(props: Props) {
+  const { orientation, defaultValue, step, min, max, colors, value } = props;
   const { className, trackClassName, progressClassname, thumbClassname } =
     props;
   const track = useRef<HTMLDivElement>(null);
@@ -35,6 +36,13 @@ export default function InputRange(props: Props) {
       values,
     });
   }, [values, orientation, min, max, colors]);
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setValues([(max ?? 100) - value]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   return (
     <div

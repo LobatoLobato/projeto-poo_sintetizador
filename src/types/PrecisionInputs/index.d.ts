@@ -19,7 +19,7 @@ declare module "precision-inputs/dist/precision-inputs" {
     public focusActiveClass: string;
     public dragActiveClass: string;
     public r: number;
-    public value: number;
+    public value?: number;
     private _input: HTMLInputElement;
     private _container: HTMLElement;
     private _activeDrag: boolean;
