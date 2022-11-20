@@ -1,17 +1,48 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./Amplifier.scss";
 import { AmplifierModule, ModuleProps } from "models";
 import { Envelope, Slider, AudioVisualizer } from "components";
 import { Utils } from "common";
+import { IAmplifierParams } from "models/Data";
+import { PRESET_MANAGER } from "controller";
+import { IEnvelopeParams } from "models/Data/IEnvelopeParams";
 
 export function Amplifier(props: ModuleProps<AmplifierModule>) {
   const amplifier = useMemo(() => new AmplifierModule(), []);
+  const lfoSlider = useRef<Slider>(null);
   const [lfoDepth, setLfoDepth] = useState(0);
+  const envelope = {
+    getValues: useState<() => IEnvelopeParams>(),
+    setValues: useState<(values: IEnvelopeParams | undefined) => void>(),
+  };
   const { onMount, connectTo, noteOn } = props;
+  const { savePreset, loadPreset } = props;
 
   useEffect(() => {
     if (onMount) onMount(amplifier);
   }, [onMount, amplifier]);
+  useEffect(() => {
+    if (!savePreset) return;
+    const [getEnvelopeValues] = envelope.getValues;
+    PRESET_MANAGER.saveToCurrentPreset<IAmplifierParams>({
+      discriminator: "AmplifierParams",
+      envelope: getEnvelopeValues?.(),
+      lfo_depth: lfoSlider.current?.getValue(),
+    });
+    console.log("Saving amplifier parameters");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savePreset]);
+
+  useEffect(() => {
+    if (!loadPreset) return;
+    const params = PRESET_MANAGER.loadFromCurrentPreset("AmplifierParams");
+    const [setEnvelopeValues] = envelope.setValues;
+    setEnvelopeValues?.(params.envelope);
+    lfoSlider.current?.setValue(params.lfo_depth);
+
+    console.log("Loading amplifier parameters");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadPreset]);
 
   useEffect(() => {
     if (!connectTo || !amplifier) return;
@@ -33,11 +64,13 @@ export function Amplifier(props: ModuleProps<AmplifierModule>) {
       </div>
       <Envelope
         className="flex h-fit w-full grow flex-col bg-zinc-700 px-1 pb-1 text-center text-sm"
+        onMount={(getValues, setValues) => {
+          envelope.getValues[1](getValues);
+          envelope.setValues[1](setValues);
+        }}
         amount={{
           initial: 0.22,
-          onValueChange: (value) => {
-            amplifier.envelope.amount = value;
-          },
+          onValueChange: (value) => (amplifier.envelope.amount = value),
         }}
         attack={{
           onValueChange: (value) => (amplifier.envelope.attack = value * 5),
@@ -66,6 +99,7 @@ export function Amplifier(props: ModuleProps<AmplifierModule>) {
           setLfoDepth(value);
           amplifier.lfoAmount = value;
         }}
+        ref={lfoSlider}
       />
     </div>
   );
