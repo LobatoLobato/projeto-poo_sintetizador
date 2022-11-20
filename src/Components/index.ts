@@ -9,3 +9,4 @@ export * from "./LFO/LFO";
 export * from "./WaveformSelector/WaveformSelector";
 export * from "./Knob/Knob";
 export * from "./AudioVisualizer/AudioVisualizer";
+export * from "./NavBar/NavBar";

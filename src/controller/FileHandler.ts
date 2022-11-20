@@ -1,6 +1,11 @@
 import FileSaver from "file-saver";
 import isElectron from "is-electron";
 import * as IData from "models/Data";
+import {
+  NotAvailableOnBrowserError,
+  NotImplementedError,
+} from "models/Exceptions";
+
 import { PresetMap } from "./PresetManager";
 
 type JSONPreset = { [key: string]: IData.PresetParamContainer };
@@ -81,34 +86,39 @@ export class FileHandler {
         }
       };
       reader.readAsText(file); // Começa a leitura do arquivo importado
-      console.log(file.name);
     });
   }
   /**
    * ! Electron environment specific !
    */
   public async savePresets() {
-    throw new Error("Method Arquivo.savePresets is not implemented");
+    throw new NotImplementedError("Arquivo.savePresets");
     // if (!isElectron())
-    //   throw new Error("Method Arquivo.savePresets is not available on browser");
+    // throw new NotAvailableOnBrowserError("Arquivo.savePresets");
+  }
+  /**
+   * ! Electron environment specific !
+   */
+  public async getPreset() {
+    throw new NotImplementedError("Arquivo.getPreset");
+    // if (!isElectron())
+    // throw new NotAvailableOnBrowserError("Arquivo.getPreset");
   }
   /**
    * ! Electron environment specific !
    */
   public async savePreset() {
-    throw new Error("Method Arquivo.savePreset is not implemented");
+    throw new NotImplementedError("Arquivo.savePreset");
     // if (!isElectron())
-    //   throw new Error("Method Arquivo.savePreset is not available on browser");
+    // throw new NotAvailableOnBrowserError("Arquivo.savePreset");
   }
   /**
    * ! Electron environment specific !
    */
   public async deletePreset() {
-    throw new Error("Method Arquivo.deletePreset is not implemented");
+    throw new NotImplementedError("Arquivo.deletePreset");
     // if (!isElectron())
-    //   throw new Error(
-    //     "Method Arquivo.deletePreset is not available on browser"
-    //   );
+    // throw new NotAvailableOnBrowserError("Arquivo.deletePreset");
   }
 
   /**
@@ -119,7 +129,7 @@ export class FileHandler {
     contents: FileSystemWriteChunkType
   ) {
     if (!isElectron())
-      throw new Error("Method Arquivo.writeFile is not available on browser");
+      throw new NotAvailableOnBrowserError("Arquivo.writeFile");
     // Create a FileSystemWritableFileStream to write to.
     const writable = await fileHandle.createWritable();
     // Write the contents of the file to the stream.
