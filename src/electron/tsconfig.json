@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": {
       "components": ["./components"],
       "models": ["./models"],
@@ -15,14 +15,13 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
+    "isolatedModules": false,
+    "noEmit": false,
     "jsx": "react-jsx",
-    "outDir": "./public/electron"
+    "outDir": "../../public/electron"
   },
-  "include": ["./src/**/*"],
-  "exclude": ["./src/electron/**/*"]
+  "include": ["./**/*"]
 }
