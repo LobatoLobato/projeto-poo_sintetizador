@@ -26,14 +26,14 @@ export function Knob(props: KnobProps) {
         ...props,
         initial: props.initial ?? 0,
       });
-      knob.addEventListener("change", (ev) => {
-        if (onValueChange) onValueChange(knob.value);
+      knob.addEventListener("change", () => {
+        if (onValueChange) onValueChange(knob.value ?? 0);
       });
-      knob.addEventListener("dblclick", (ev) => {
-        if (onValueChange) onValueChange(knob.value);
+      knob.addEventListener("dblclick", () => {
+        if (onValueChange) onValueChange(knob.value ?? 0);
       });
-      knob.addEventListener("wheel", (ev) => {
-        if (onValueChange) onValueChange(knob.value);
+      knob.addEventListener("wheel", () => {
+        if (onValueChange) onValueChange(knob.value ?? 0);
       });
       if (onMount) onMount(knob);
     },
