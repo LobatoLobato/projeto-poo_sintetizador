@@ -5,7 +5,8 @@
 .visualizer-container {
   @apply flex h-1/2 w-full rounded-sm bg-zinc-700 p-2;
   .visualizer {
-    @apply box-content w-full max-w-full overflow-hidden
+    // overflow-hidden
+    @apply box-content w-full overflow-visible
     rounded-md border-2 border-zinc-800 bg-zinc-900 text-white;
   }
 }

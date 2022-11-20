@@ -1,9 +1,9 @@
-export * from "./SynthModules/Module";
-export * from "./SynthModules/OscillatorModule";
-export * from "./SynthModules/AmplifierModule";
-export * from "./SynthModules/EnvelopeModule";
-export * from "./SynthModules/LFOModule";
-export type { ModuleProps } from "./SynthModules/ModuleProps";
-export type { Modulatable } from "./SynthModules/Modulatable";
-export * from "./SynthModules/VisualizerModule";
+export * from "./Modules/Module";
+export * from "./Modules/OscillatorModule";
+export * from "./Modules/AmplifierModule";
+export * from "./Modules/EnvelopeModule";
+export * from "./Modules/LFOModule";
+export type { ModuleProps } from "./Modules/ModuleProps";
+export type { Modulatable } from "./Modules/Modulatable";
+export * from "./Modules/VisualizerModule";
 export * from "./KeyboardHandler";

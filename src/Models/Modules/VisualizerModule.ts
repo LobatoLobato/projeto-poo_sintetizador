@@ -2,7 +2,6 @@ import { Utils } from "common";
 import * as PIXI from "pixi.js";
 import { Module } from "models";
 
-
 enum MODE {
   DISABLED,
   WAVE,
@@ -59,12 +58,19 @@ export class VisualizerModule extends Module {
       antialias: true,
       view: this.view,
     });
+    console.log(this.renderer);
     // Create a pixi graphics instance
     this.graphics = new PIXI.Graphics();
     this.graphics.lineStyle(DEFAULT_LINE_WIDTH, this.foregroundColor);
     // Append graphics to the stage
     this.stage.addChild(this.graphics);
 
+    window.addEventListener("resize", () => {
+      this.renderer.resize(
+        parseFloat(this.style.width),
+        parseFloat(this.style.height)
+      );
+    });
     // set default mode
     this.setModeWave();
   }
