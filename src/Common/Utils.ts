@@ -1,4 +1,4 @@
-export class Utils {
+export namespace Utils {
   /**
    * Converte o valor de uma função linear para o valor de uma função exponencial de base 2
    * @param x Valor
@@ -6,7 +6,7 @@ export class Utils {
    * @param upperLim Limite superior
    * @returns O valor convertido
    */
-  public static linToExp2(
+  export function linToExp2(
     x: number,
     lowerLim?: number,
     upperLim?: number
@@ -19,7 +19,7 @@ export class Utils {
    * @param index Índice da nota
    * @returns Frequencia a partir do índice
    */
-  public static indexToFrequency(index: number): number {
+  export function indexToFrequency(index: number): number {
     const frequency = 16.35 * 2 ** (index / 12);
     return frequency;
   }
@@ -28,7 +28,7 @@ export class Utils {
    * @param element O elemento HTML
    * @returns Largura do elemento
    */
-  public static elementWidth(element: Element): number {
+  export function elementWidth(element: Element): number {
     return element.getBoundingClientRect().width;
   }
   /**
@@ -36,14 +36,14 @@ export class Utils {
    * @param element O elemento HTML
    * @returns Altura do elemento
    */
-  public static elementHeight(element: Element): number {
+  export function elementHeight(element: Element): number {
     return element.getBoundingClientRect().height;
   }
   /**
    * @param str A cor em qualquer formato
    * @returns A cor no formato #xxxxxx
    */
-  public static standardizeColor(str: string) {
+  export function standardizeColor(str: string): string {
     const ctx = document
       .createElement("canvas")
       .getContext("2d") as CanvasRenderingContext2D;
@@ -54,16 +54,16 @@ export class Utils {
    * @param str A cor em qualquer formato
    * @returns A cor em hexadecimal
    */
-  public static colorStrToHexNumber(str: string): number {
-    const standardizedStr = this.standardizeColor(str);
+  export function colorStrToHexNumber(str: string): number {
+    const standardizedStr = standardizeColor(str);
     return parseInt(standardizedStr.replace(/^#/, ""), 16);
   }
   /**
-   * 
+   *
    * @param num Numero fracional
    * @returns A parte decimal do numero
    */
-  public static getDecimalPart(num: number): number {
+  export function getDecimalPart(num: number): number {
     if (Number.isInteger(num)) {
       return 0;
     }
@@ -72,11 +72,11 @@ export class Utils {
     return Number(decimalStr);
   }
   /**
-   * 
+   *
    * @param num Numero fracional
    * @returns Quantidade de casas decimais do numero
    */
-  public static getDecimalPartSize(num: number): number {
+  export function getDecimalPartSize(num: number): number {
     if (Number.isInteger(num)) {
       return 0;
     }
@@ -86,12 +86,12 @@ export class Utils {
   }
 
   /**
-   * 
+   *
    * @param num Numero fracional
    * @param precision Quantidade de digitos depois do ponto decimal
    * @returns Numero com quantidade de casas decimais fixas
    */
-  public static toFixedNum(num: number, precision: number): number {
+  export function toFixedNum(num: number, precision: number): number {
     return parseFloat(num.toFixed(precision));
   }
 }
