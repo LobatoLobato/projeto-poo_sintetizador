@@ -1,12 +1,15 @@
-import { Arquivo } from "controller/Arquivo";
 import React, { useRef, useState } from "react";
 import "./NavBar.scss";
 import { createGlobalstate } from "state-pool";
+import { PRESET_MANAGER, FILE_HANDLER } from "controller";
 
 export const SAVE_PRESET = createGlobalstate(false);
-export const LOAD_PRESET = createGlobalstate(false);
+export const LOAD_PRESET = createGlobalstate(true);
+setTimeout(() => {
+  LOAD_PRESET.setValue(false);
+}, 1000);
 
-export default function NavBar() {
+export function NavBar() {
   return (
     <nav className="nav-bar">
       <PresetMenu />
@@ -25,21 +28,23 @@ function PresetMenu() {
   const [showNewPresetPrompt, setShowNewPresetPrompt] = useState(false);
 
   function exportPresets() {
-    Arquivo.exportPresets();
+    const presetMap = PRESET_MANAGER.getPresetMapAsJSON();
+    FILE_HANDLER.exportJSON(presetMap, "preset");
   }
-  function importPresets(ev: React.FormEvent<HTMLInputElement>) {
+  async function importPresets(ev: React.FormEvent<HTMLInputElement>) {
     const file = ev.currentTarget.files?.item(0);
     if (!file) return;
-    Arquivo.importPresets(file).catch(console.log);
+    FILE_HANDLER.importPresets(file)
+      .then((map) => PRESET_MANAGER.setPresetMap(map))
+      .catch(console.log);
   }
   function savePreset(presetName: string, overwrite?: boolean) {
-    console.log(presetName);
     try {
-      Arquivo.savePreset(presetName, overwrite);
+      PRESET_MANAGER.savePreset(presetName, overwrite);
     } catch (e) {
       setShowOverwritePrompt([true, presetName]);
     }
-    Arquivo.setPreset(presetName);
+    PRESET_MANAGER.setPreset(presetName);
 
     SAVE_PRESET.setValue(true);
     setTimeout(() => {
@@ -47,8 +52,8 @@ function PresetMenu() {
     }, 500);
   }
   function loadPreset(presetName: string) {
-    Arquivo.setPreset(presetName);
-    console.log(presetName);
+    PRESET_MANAGER.setPreset(presetName);
+
     LOAD_PRESET.setValue(true);
     setTimeout(() => {
       LOAD_PRESET.setValue(false);
@@ -57,7 +62,7 @@ function PresetMenu() {
   }
 
   function updatePresetNames() {
-    setPresetNames(Arquivo.getPresetNames());
+    setPresetNames(PRESET_MANAGER.getPresetNames());
   }
 
   const toggleVisibility = () => {

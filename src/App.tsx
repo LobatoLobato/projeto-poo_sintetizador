@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { Keyboard, Rack, NavBar } from "components";
+import { Keyboard, Rack } from "components";
 
 function App() {
   const [initCTX, setInitCTX] = useState(false);
@@ -8,7 +8,6 @@ function App() {
   const [noteOff, setNoteOff] = useState({ note: 0, active: true });
   const [portamento, setPortamento] = useState({ time: 0, on: false });
   const [legatoOn, setLegatoOn] = useState(false);
-
   useEffect(() => {
     const rangeInputs = document.querySelectorAll<HTMLInputElement>(
       'input[type="range"]'
@@ -26,8 +25,7 @@ function App() {
   return (
     <div className="App">
       {initCTX ? (
-        <>
-          <NavBar />
+        <div className="flex h-full flex-col justify-between">
           <Rack
             noteOn={noteOn}
             noteOff={noteOff}
@@ -40,7 +38,7 @@ function App() {
             onPortamentoChange={setPortamento}
             onLegatoChange={setLegatoOn}
           />
-        </>
+        </div>
       ) : (
         <button className="initctx-btn" onClick={() => setInitCTX(true)}>
           Entrar
