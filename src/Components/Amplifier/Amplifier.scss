@@ -1,5 +1,5 @@
 .amplifier {
-  @apply flex h-2/3 min-h-fit w-72 shrink-0
+  @apply flex h-5/6 min-h-fit w-72 shrink-0
   flex-col gap-0.5 bg-zinc-800 px-1 pb-1 text-center text-white;
 }
 .visualizer-container {
@@ -10,7 +10,7 @@
   }
 }
 .amplifier-envelope {
-  @apply flex w-full flex-col gap-2 max-h-fit;
+  @apply flex max-h-fit w-full flex-col gap-2;
 }
 
 .amplifier-slider-container {
