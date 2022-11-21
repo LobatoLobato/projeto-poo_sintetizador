@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import "./Rack.scss";
-import { AmplifierModule, LFOModule, Module, OscillatorModule } from "models";
+import {
+  AmplifierModule,
+  FilterModule,
+  LFOModule,
+  Module,
+  OscillatorModule,
+} from "models";
 import { Amplifier, Oscillator, LFO } from "components";
 import { useGlobalState } from "state-pool";
 import { LOAD_PRESET, SAVE_PRESET } from "../NavBar/NavBar";
+import Filter from "components/Filter/Filter";
 
 interface RackProps {
   noteOn: { note: number; active: boolean };
@@ -15,6 +22,7 @@ export function Rack(props: RackProps) {
   const [lfo, setLfo] = useState<LFOModule>();
   const [oscillator, setOscillator] = useState<OscillatorModule>();
   const [amplifier, setAmplifier] = useState<AmplifierModule>();
+  const [filter, setFilter] = useState<FilterModule>();
   const [prevNoteState, setPrevNoteState] = useState(false);
   const [savePreset] = useGlobalState<boolean>(SAVE_PRESET);
   const [loadPreset] = useGlobalState<boolean>(LOAD_PRESET);
@@ -49,12 +57,13 @@ export function Rack(props: RackProps) {
       />
       <Oscillator
         onMount={setOscillator}
-        connectTo={amplifier?.inputNode}
+        connectTo={filter?.getAudioNode()}
         noteOn={noteOn}
         noteOff={noteOff}
         savePreset={savePreset}
         loadPreset={loadPreset}
       />
+      <Filter onMount={setFilter} connectTo={amplifier?.inputNode} />
       <Amplifier
         onMount={setAmplifier}
         connectTo={Module.context?.destination}
