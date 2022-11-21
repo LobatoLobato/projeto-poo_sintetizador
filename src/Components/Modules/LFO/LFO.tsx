@@ -54,21 +54,19 @@ export function LFO(props: ModuleProps<LFOModule>) {
   }, [connectTo, lfo]);
   useEffect(() => {
     if (!noteOn || (noteOn.note < 0 && !noteOn.active)) return;
-    lfo.osc.envelope.start();
-    lfo.amp.envelope.start();
+    lfo.start();
   }, [noteOn, lfo]);
 
   useEffect(() => {
     if (!noteOff || !noteOff.active) return;
-    lfo.osc.envelope.stop();
-    lfo.amp.envelope.stop();
+    lfo.stop();
   }, [noteOff, lfo]);
 
   return (
     <div className="lfo-container">
       LFO
       <WaveformSelector
-        onClick={(wave) => (lfo.osc.type = wave)}
+        onClick={(wave) => lfo.osc.setType(wave)}
         value={type}
       />
       <Envelope

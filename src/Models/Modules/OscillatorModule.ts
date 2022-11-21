@@ -1,3 +1,4 @@
+import autoBind from "auto-bind";
 import { Module, EnvelopeModule, IModulatable } from "models";
 
 type UnisonNode = [OscillatorNode, GainNode, PannerNode];
@@ -24,16 +25,18 @@ export class OscillatorModule
   private _unisonSpread: number = 0;
   private _portamentoTime: number = 0;
   private _portamentoOn: boolean = false;
-  private _running: boolean = false;
 
   constructor() {
     super();
+    autoBind(this);
     this.envelope.connect(this.node.frequency);
     this.envelope.setSustain(0);
     this.lfoInputNode.connect(this.node.frequency);
-    this._unisonNodes.forEach(([osc]) =>
-      this.lfoInputNode.connect(osc.frequency)
-    );
+    this._unisonNodes.forEach(([osc]) => {
+      this.lfoInputNode.connect(osc.frequency);
+      osc.start();
+    });
+    this.node.start();
   }
   private createUnisonNodes(size: number, gain: number): UnisonNode[] {
     const detuneIncrement = this._maxDetune / size;
@@ -81,48 +84,21 @@ export class OscillatorModule
    * Conecta o oscilador a um nó de audio
    * @param destination Nó de destino da conexão
    */
-  public connect(destination?: AudioNode | AudioParam, output?: number): void {
+  public connect(destination?: AudioNode | AudioParam): void {
     if (!destination) return;
-    if (destination instanceof AudioNode) {
-      this.node.connect(destination, output);
-      this._unisonNodes.forEach(([_, gain]) =>
-        gain.connect(destination, output)
-      );
-    }
-    if (destination instanceof AudioParam) {
-      this.node.connect(destination, output);
-      this._unisonNodes.forEach(([_, gain]) =>
-        gain.connect(destination, output)
-      );
-    }
+    const dest = destination as AudioNode;
+    this.node.connect(dest);
+    this._unisonNodes.forEach(([_, gain]) => gain.connect(dest));
     this._destination = destination;
   }
-  /**
-   * Inicia o oscilador
-   */
-  public start(): void {
-    if (this._running) return;
-    this.node.start();
-    this._unisonNodes.forEach(([osc]) => osc.start());
-    this._running = true;
-  }
-  /**
-   * Para o oscilador
-   */
-  public stop(): void {
-    if (!this._running) return;
-    this.node.stop();
-    this._unisonNodes.forEach(([osc]) => osc.stop());
-    this._running = false;
-  }
 
-  public set type(type: OscillatorType) {
+  public setType(type: OscillatorType) {
     type = type.toLowerCase() as OscillatorType;
     this._type = type;
     this.node.type = type;
     this._unisonNodes.forEach(([osc]) => (osc.type = type));
   }
-  public set frequency(frequency: number) {
+  public setFrequency(frequency: number) {
     frequency = frequency || this.minValue;
     this._frequency = frequency;
 
@@ -143,7 +119,7 @@ export class OscillatorModule
       this._unisonNodes.forEach(([osc]) => (osc.frequency.value = frequency));
     }
   }
-  public set detune(detune: number) {
+  public setDetune(detune: number) {
     detune = detune || this.minValue;
     this._detune = detune;
     this.node.detune.value = detune;
@@ -151,37 +127,37 @@ export class OscillatorModule
       osc.detune.value = this._unisonDetuneValues[index] + detune;
     });
   }
-  public set pitchOffset(offset: number) {
+  public setPitchOffset(offset: number) {
     this._pitchOffset = offset;
-    this.frequency = this._frequency;
+    this.setFrequency(this._frequency);
   }
-  public set unisonSize(size: number) {
+  public setUnisonSize(size: number) {
     size = Math.min(size, 14);
     this._unisonSize = size;
     this.createUnisonNodes(size / 2, 0.35);
   }
-  public set unisonDetune(detuneAmount: number) {
+  public setUnisonDetune(detuneAmount: number) {
     detuneAmount = Math.max(0, Math.min(detuneAmount, 100));
     this._unisonDetune = detuneAmount;
     this._unisonNodes.forEach(([osc], index) => {
       osc.detune.value = this._unisonDetuneValues[index] * detuneAmount;
     });
   }
-  public set unisonSpread(spread: number) {
+  public setUnisonSpread(spread: number) {
     spread = Math.max(0, Math.min(spread, 100)) / 10000;
     this._unisonSpread = spread;
-    spread *= 0.02;
+    spread *= 0.0002;
     this._unisonNodes.forEach(([osc, _, pan]) => {
       pan.positionX.value = osc.detune.value * spread;
     });
   }
-  public set portamentoOn(on: boolean) {
+  public setPortamentoOn(on: boolean) {
     this._portamentoOn = on;
   }
-  public set portamentoTime(time: number) {
+  public setPortamentoTime(time: number) {
     this._portamentoTime = time;
   }
-  public set lfoAmount(value: number) {
+  public setLfoAmount(value: number) {
     value = Math.max(this.minValue, Math.min(value, this._maxLFOAmount));
     this.lfoInputNode.gain.value = value * this._maxLFOAmount;
   }

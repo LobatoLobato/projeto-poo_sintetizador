@@ -88,7 +88,7 @@ export function Amplifier(props: ModuleProps<AmplifierModule>) {
         onInput={(value) => {
           // value = Utils.linToExp2(value, 0, 3);
           setLfoDepth(value);
-          amplifier.lfoAmount = value;
+          amplifier.setLfoAmount(value);
         }}
         ref={lfoSlider}
       />

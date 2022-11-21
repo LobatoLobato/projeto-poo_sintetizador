@@ -1,8 +1,7 @@
-import { Module } from "models";
-import { Utils } from "common";
+import { Module, IModulator } from "models";
 import autoBind from "auto-bind";
 
-export class EnvelopeModule extends Module<GainNode> {
+export class EnvelopeModule extends Module<GainNode> implements IModulator {
   private readonly source: ConstantSourceNode = new ConstantSourceNode(
     Module.context,
     { offset: this.minValue }
@@ -21,11 +20,8 @@ export class EnvelopeModule extends Module<GainNode> {
   constructor(maxValue: number, initialValue?: number) {
     super();
     autoBind(this);
+    if (initialValue) this.setAmount(initialValue);
     this.maxValue = Math.max(maxValue, this.minValue);
-    this.node.gain.setValueAtTime(
-      initialValue ?? this.minValue,
-      this.currentTime()
-    );
     this.source.connect(this.node);
     this.source.start();
   }
@@ -86,7 +82,6 @@ export class EnvelopeModule extends Module<GainNode> {
   }
   public setAmount(value: number): void {
     value = value || this.minValue;
-    console.log(value);
     this._amount = value;
     this.node.gain.setValueAtTime(value, this.currentTime());
   }

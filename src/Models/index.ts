@@ -6,5 +6,6 @@ export * from "./Modules/LFOModule";
 export * from "./Modules/FilterModule";
 export type { ModuleProps } from "./Modules/ModuleProps";
 export type { IModulatable } from "./Modules/IModulatable";
+export type { IModulator } from "./Modules/IModulator";
 export * from "./Modules/VisualizerModule";
 export * from "./KeyboardHandler";

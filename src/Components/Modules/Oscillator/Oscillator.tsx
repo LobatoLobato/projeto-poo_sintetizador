@@ -27,7 +27,6 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
 
   useEffect(() => {
     if (onMount) onMount(oscillator);
-    oscillator.start();
   }, [onMount, oscillator]);
 
   useEffect(() => {
@@ -75,7 +74,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
   useEffect(() => {
     if (!noteOn || (noteOn.note < 0 && !noteOn.active)) return;
     const noteFrequency = Utils.indexToFrequency(noteOn.note);
-    oscillator.frequency = noteFrequency;
+    oscillator.setFrequency(noteFrequency);
     oscillator.envelope.start();
   }, [noteOn, oscillator]);
 
@@ -92,7 +91,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
           className="col-span-1 row-span-2"
           orientation="vertical"
           onClick={(wave) => {
-            oscillator.type = wave;
+            oscillator.setType(wave);
             setType(wave);
           }}
           value={type}
@@ -102,15 +101,9 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
             unison.getValues[1](getValues);
             unison.setValues[1](setValues);
           }}
-          onSizeChanged={(value) => {
-            oscillator.unisonSize = value;
-          }}
-          onDetuneChanged={(value) => {
-            oscillator.unisonDetune = value;
-          }}
-          onSpreadChanged={(value) => {
-            oscillator.unisonSpread = value;
-          }}
+          onSizeChanged={oscillator.setUnisonSize}
+          onDetuneChanged={oscillator.setUnisonDetune}
+          onSpreadChanged={oscillator.setUnisonSpread}
         />
         <div className="col-span-1 row-span-2 grid grid-rows-2 gap-0.5 bg-zinc-700">
           <Knob
@@ -120,7 +113,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
             step={1}
             min={-24}
             max={24}
-            onValueChange={(value) => (oscillator.pitchOffset = value)}
+            onValueChange={oscillator.setPitchOffset}
             onMount={setPoKnob}
             indicatorRingType="split"
           />
@@ -131,7 +124,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
             step={1}
             min={-50}
             max={50}
-            onValueChange={(value) => (oscillator.detune = value)}
+            onValueChange={oscillator.setDetune}
             onMount={setDtnKnob}
             indicatorRingType="split"
           />
@@ -161,7 +154,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
         outputValue={lfoDepth.toFixed(2)}
         onInput={(value) => {
           value = Utils.linToExp2(value, 0, 2);
-          oscillator.lfoAmount = value;
+          oscillator.setLfoAmount(value);
           setLfoDepth(value);
         }}
         ref={lfoSlider}

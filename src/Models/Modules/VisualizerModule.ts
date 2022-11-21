@@ -15,7 +15,7 @@ interface IRenderer extends PIXI.IRenderer {
 const DEFAULT_LINE_WIDTH = 1.2;
 const WAVE_PIXELS_PER_SAMPLE = 0.4;
 export class VisualizerModule extends Module<AnalyserNode> {
-  public readonly node: AnalyserNode = new AnalyserNode(Module.context, {
+  protected readonly node: AnalyserNode = new AnalyserNode(Module.context, {
     fftSize: 2048,
     smoothingTimeConstant: 0.25,
   });
@@ -82,13 +82,13 @@ export class VisualizerModule extends Module<AnalyserNode> {
     this.foregroundColor = Utils.colorStrToHexNumber(style.color);
   }
 
-  public start(): void {
+  public enable(): void {
     this.enabled = true;
     this.view.style.visibility = "visible";
     requestAnimationFrame(this.render);
   }
 
-  public stop(): void {
+  public disable(): void {
     this.mode = MODE.DISABLED;
     this.enabled = false;
     this.view.style.visibility = "hidden";
@@ -98,7 +98,7 @@ export class VisualizerModule extends Module<AnalyserNode> {
     this.mode = (this.mode + 1) % MODE.COUNT;
     switch (this.mode) {
       case MODE.DISABLED:
-        this.stop();
+        this.disable();
         break;
       case MODE.WAVE:
         this.setModeWave();
@@ -111,7 +111,7 @@ export class VisualizerModule extends Module<AnalyserNode> {
 
   public setModeFFT() {
     this.mode = MODE.FFT;
-    this.start();
+    this.enable();
     try {
       this.node.fftSize =
         Math.pow(2, Math.ceil(Math.log(this.width) / Math.LN2)) * 16;
@@ -124,7 +124,7 @@ export class VisualizerModule extends Module<AnalyserNode> {
 
   public setModeWave() {
     this.mode = MODE.WAVE;
-    this.start();
+    this.enable();
     this.node.fftSize = 2048;
     this.floatData = new Float32Array(this.node.frequencyBinCount);
   }

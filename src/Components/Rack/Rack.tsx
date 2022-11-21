@@ -10,7 +10,7 @@ import {
 import { Amplifier, Oscillator, LFO } from "components";
 import { useGlobalState } from "state-pool";
 import { LOAD_PRESET, SAVE_PRESET } from "../NavBar/NavBar";
-import Filter from "components/Filter/Filter";
+import Filter from "components/Modules/Filter/Filter";
 
 interface RackProps {
   noteOn: { note: number; active: boolean };
@@ -30,19 +30,19 @@ export function Rack(props: RackProps) {
 
   useEffect(() => {
     if (noteOn.active && (!prevNoteState || !legatoOn)) {
-      if (amplifier) amplifier.start();
+      if (amplifier) amplifier.envelope.start();
       if (lfo) lfo.start();
       setPrevNoteState(true);
     } else if (noteOff.active) {
-      if (amplifier) amplifier.stop();
+      if (amplifier) amplifier.envelope.stop();
       if (lfo) lfo.stop();
       setPrevNoteState(false);
     }
   }, [noteOn, amplifier, lfo, noteOff, prevNoteState, legatoOn]);
   useEffect(() => {
     if (oscillator) {
-      oscillator.portamentoOn = portamento.on;
-      oscillator.portamentoTime = portamento.time;
+      oscillator.setPortamentoOn(portamento.on);
+      oscillator.setPortamentoTime(portamento.time);
     }
   }, [portamento, oscillator]);
   return (
