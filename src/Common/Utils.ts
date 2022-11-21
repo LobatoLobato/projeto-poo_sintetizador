@@ -1,5 +1,31 @@
 export namespace Utils {
   /**
+   * Converte o valor obtido de uma escala linear
+   * para o seu equivalente numa escala logaritmica.
+   * @param x O valor da escala linear
+   * @param x0 O limite inferior da escala linear
+   * @param x1 O limite superior da escala linear
+   * @param c A constante de incremento da escala linear (Necessária se x0 for igual a 0)
+   * @param y0 O limite inferior da escala logaritmica (Por padrão é igual a x0)
+   * @param y1 O limite superior da escala logaritmica (Por padrão é igual a x1)
+   * @returns
+   */
+  export function linToLogScale(
+    x: number,
+    x0: number,
+    x1: number,
+    c?: number,
+    y0: number = x0,
+    y1: number = x1
+  ): number {
+    if (x <= x0) return x0;
+    const C = c ?? 0.000000000000001;
+    const lin = (x - x0) / (x1 - x0);
+    const log = lin * (Math.log(y1) - Math.log(y0 + C)) + Math.log(y0 + C);
+    return Math.pow(Math.E, log);
+  }
+
+  /**
    * Converte o valor de uma função linear para o valor de uma função exponencial de base 2
    * @param x Valor
    * @param lowerLim Limite inferior
@@ -13,6 +39,9 @@ export namespace Utils {
   ): number {
     const exponentialValue = x * Math.pow(2, x - (upperLim ?? 0));
     return Math.max(exponentialValue, lowerLim ?? exponentialValue);
+  }
+  export function clamp(x: number, x0: number, x1: number): number {
+    return Math.max(x0, Math.min(x, x1));
   }
   /**
    *

@@ -1,8 +1,11 @@
-import { Module, EnvelopeModule, Modulatable } from "models";
+import { Module, EnvelopeModule, IModulatable } from "models";
 
 type UnisonNode = [OscillatorNode, GainNode, PannerNode];
 
-export class OscillatorModule extends Module implements Modulatable {
+export class OscillatorModule
+  extends Module<OscillatorNode>
+  implements IModulatable
+{
   public readonly lfoInputNode: GainNode = new GainNode(Module.context, {
     gain: this.minValue,
   });
@@ -26,10 +29,10 @@ export class OscillatorModule extends Module implements Modulatable {
   constructor() {
     super();
     this.envelope.connect(this.node.frequency);
-    this.envelope.sustain = 0;
+    this.envelope.setSustain(0);
     this.lfoInputNode.connect(this.node.frequency);
-    this._unisonNodes.forEach((node) =>
-      this.lfoInputNode.connect(node[0].frequency)
+    this._unisonNodes.forEach(([osc]) =>
+      this.lfoInputNode.connect(osc.frequency)
     );
   }
   private createUnisonNodes(size: number, gain: number): UnisonNode[] {

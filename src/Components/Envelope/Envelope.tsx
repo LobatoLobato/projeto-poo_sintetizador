@@ -3,6 +3,7 @@ import "./Envelope.scss";
 import { useEffect, useMemo, useState } from "react";
 import { FLStandardKnob } from "precision-inputs/dist/precision-inputs";
 import { IEnvelopeParams } from "models/Data/IEnvelopeParams";
+import { EnvelopeModule } from "models";
 
 interface EnvelopeProps {
   className?: string;
@@ -17,6 +18,7 @@ interface EnvelopeProps {
     getValues: () => () => IEnvelopeParams,
     setValues: () => (values: IEnvelopeParams | undefined) => void
   ) => void;
+  envelopeModule?: EnvelopeModule;
 }
 export function Envelope(props: EnvelopeProps) {
   const [amKnob, setAmKnob] = useState<FLStandardKnob>();
@@ -24,7 +26,8 @@ export function Envelope(props: EnvelopeProps) {
   const [deKnob, setDeKnob] = useState<FLStandardKnob>();
   const [suKnob, setSuKnob] = useState<FLStandardKnob>();
   const [reKnob, setReKnob] = useState<FLStandardKnob>();
-  const { className, onMount } = props;
+  const { className, onMount, envelopeModule } = props;
+
   const dragResistance = 50;
   const getValues = useMemo(() => {
     return function (): IEnvelopeParams {
@@ -49,7 +52,26 @@ export function Envelope(props: EnvelopeProps) {
       reKnob.value = values.release;
     };
   }, [amKnob, atKnob, deKnob, reKnob, suKnob]);
-
+  const onAmountChange = (value: number) => {
+    props.amount?.onValueChange?.(value);
+    if (envelopeModule) envelopeModule.setAmount(value);
+  };
+  const onAttackChange = (value: number) => {
+    props.attack?.onValueChange?.(value);
+    if (envelopeModule) envelopeModule.setAttack(value);
+  };
+  const onDecayChange = (value: number) => {
+    props.decay?.onValueChange?.(value);
+    if (envelopeModule) envelopeModule.setDecay(value);
+  };
+  const onSustainChange = (value: number) => {
+    props.sustain?.onValueChange?.(value);
+    if (envelopeModule) envelopeModule.setSustain(value);
+  };
+  const onReleaseChange = (value: number) => {
+    props.release?.onValueChange?.(value);
+    if (envelopeModule) envelopeModule.setRelease(value);
+  };
   useEffect(() => {
     if (!onMount) return;
     onMount(
@@ -66,6 +88,10 @@ export function Envelope(props: EnvelopeProps) {
           title="Attack"
           dragResistance={dragResistance}
           onMount={setAtKnob}
+          onValueChange={props.release?.onValueChange ?? onAttackChange}
+          logarithmic
+          max={props.attack?.max ?? 50}
+          step={props.attack?.step ?? 0.1}
           {...props.attack}
         />
         <Knob
@@ -73,6 +99,10 @@ export function Envelope(props: EnvelopeProps) {
           title="Decay"
           dragResistance={dragResistance}
           onMount={setDeKnob}
+          onValueChange={onDecayChange}
+          logarithmic
+          max={props.decay?.max ?? 50}
+          step={props.decay?.step ?? 0.1}
           {...props.decay}
         />
         <Knob
@@ -80,6 +110,7 @@ export function Envelope(props: EnvelopeProps) {
           className="envelope-knob"
           dragResistance={dragResistance}
           onMount={setSuKnob}
+          onValueChange={props.release?.onValueChange ?? onSustainChange}
           {...props.sustain}
         />
         <Knob
@@ -87,14 +118,19 @@ export function Envelope(props: EnvelopeProps) {
           title="Release"
           dragResistance={dragResistance}
           onMount={setReKnob}
+          onValueChange={props.release?.onValueChange ?? onReleaseChange}
+          logarithmic
+          max={props.release?.max ?? 50}
+          step={props.release?.step ?? 1}
           {...props.release}
         />
         <Knob
+          {...props.amount}
           className="envelope-knob"
           title="Amount"
           dragResistance={dragResistance}
           onMount={setAmKnob}
-          {...props.amount}
+          onValueChange={props.release?.onValueChange ?? onAmountChange}
         />
       </div>
     </div>

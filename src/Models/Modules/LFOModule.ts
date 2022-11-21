@@ -1,6 +1,6 @@
 import { Module, OscillatorModule, AmplifierModule } from "models";
 
-export class LFOModule extends Module {
+export class LFOModule extends Module<GainNode> {
   public readonly osc: OscillatorModule = new OscillatorModule();
   public readonly amp: AmplifierModule = new AmplifierModule();
   public readonly node: GainNode = this.amp.node;
@@ -9,9 +9,9 @@ export class LFOModule extends Module {
     super();
     this.osc.connect(this.amp.inputNode);
     this.osc.start();
-    this.osc.frequency = 0.3;
-    this.osc.envelope.sustain = 1;
-    this.amp.envelope.amount = 0.5;
+    this.osc.frequency = this.minValue;
+    this.osc.envelope.setSustain(1);
+    this.amp.envelope.setAmount(0.5);
   }
   public start(): void {
     this.osc.envelope.start();

@@ -143,24 +143,12 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
           envelope.getValues[1](getValues);
           envelope.setValues[1](setValues);
         }}
+        envelopeModule={oscillator.envelope}
         amount={{
           indicatorRingType: "split",
-          initial: 0.5,
-          onValueChange: (value) => {
-            oscillator.envelope.amount = value * 1000 - 500;
-          },
-        }}
-        attack={{
-          onValueChange: (value) => (oscillator.envelope.attack = value * 5),
-        }}
-        decay={{
-          onValueChange: (value) => (oscillator.envelope.decay = value * 5),
-        }}
-        sustain={{
-          onValueChange: (value) => (oscillator.envelope.sustain = value),
-        }}
-        release={{
-          onValueChange: (value) => (oscillator.envelope.release = value * 5),
+          initial: 0,
+          max: 500,
+          min: -500,
         }}
       />
       <Slider

@@ -4,5 +4,5 @@ export * from "./AmplifierModule";
 export * from "./EnvelopeModule";
 export * from "./LFOModule";
 export type { ModuleProps } from "./ModuleProps";
-export type { Modulatable } from "./Modulatable";
+export type { IModulatable } from "./IModulatable";
 export * from "./VisualizerModule";

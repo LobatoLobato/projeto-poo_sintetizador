@@ -10,7 +10,6 @@ export class PresetManager {
     LFOParams: {
       discriminator: "LFOParams",
       type: "sine",
-      rate: 2,
       rateEnvelope: {
         amount: 0,
         attack: 0,

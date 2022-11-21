@@ -1,6 +1,6 @@
-import { Modulatable, EnvelopeModule, Module } from "models";
+import { IModulatable, EnvelopeModule, Module } from "models";
 
-export class AmplifierModule extends Module implements Modulatable {
+export class AmplifierModule extends Module<GainNode> implements IModulatable {
   public readonly inputNode: GainNode = new GainNode(Module.context, {
     gain: 0.22,
   });
@@ -23,17 +23,7 @@ export class AmplifierModule extends Module implements Modulatable {
     this.lfoInputNode.connect(this.inputNode.gain);
     this.inputNode.connect(this.compressor);
     this.compressor.connect(this.node);
-    this.envelope.amount = 0.22;
-  }
-  public connect(destination?: AudioNode | AudioParam, output?: number): void {
-    if (!destination) return;
-    if (destination instanceof AudioNode) {
-      this.node.connect(destination, output);
-    }
-    if (destination instanceof AudioParam) {
-      this.node.connect(destination, output);
-    }
-    this._destination = destination;
+    this.envelope.setAmount(0.22);
   }
   /**
    * Inicia o envelope do amplificador
@@ -53,7 +43,8 @@ export class AmplifierModule extends Module implements Modulatable {
   }
   set level(value: number) {
     value = Math.max(value, this.minValue);
-    this._level = this.envelope.amount = value;
+    this.envelope.setAmount(value);
+    this._level = value;
     this.inputNode.gain.value = value;
   }
   set lfoAmount(value: number) {

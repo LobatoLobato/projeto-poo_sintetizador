@@ -1,7 +1,8 @@
 import { Module } from "models";
 import { Utils } from "common";
+import autoBind from "auto-bind";
 
-export class EnvelopeModule extends Module {
+export class EnvelopeModule extends Module<GainNode> {
   private readonly source: ConstantSourceNode = new ConstantSourceNode(
     Module.context,
     { offset: this.minValue }
@@ -19,6 +20,7 @@ export class EnvelopeModule extends Module {
 
   constructor(maxValue: number, initialValue?: number) {
     super();
+    autoBind(this);
     this.maxValue = Math.max(maxValue, this.minValue);
     this.node.gain.setValueAtTime(
       initialValue ?? this.minValue,
@@ -71,29 +73,30 @@ export class EnvelopeModule extends Module {
     return this._amount;
   }
   get attack(): number {
-    return Utils.linToExp2(this._attack, this.minValue, 4);
+    return this._attack;
   }
   get decay(): number {
-    return Math.max(this._decay * 2, this.minValue);
+    return this._decay;
   }
   get sustain(): number {
-    return Math.max(this._sustain * 2, this.minValue);
+    return this._sustain;
   }
   get release(): number {
-    return Math.max(this._release * 2, this.minValue);
+    return this._release;
   }
-  set amount(value: number) {
-    value = Math.min(value || this.minValue, this.maxValue);
+  public setAmount(value: number): void {
+    value = value || this.minValue;
+    console.log(value);
     this._amount = value;
     this.node.gain.setValueAtTime(value, this.currentTime());
   }
-  set attack(value: number) {
-    this._attack = value;
+  public setAttack(value: number): void {
+    this._attack = Math.max(value, this.minValue);
   }
-  set decay(value: number) {
-    this._decay = value;
+  public setDecay(value: number): void {
+    this._decay = Math.max(value, this.minValue);
   }
-  set sustain(value: number) {
+  public setSustain(value: number): void {
     value = Math.max(value, this.minValue);
     this._sustain = value;
 
@@ -116,7 +119,7 @@ export class EnvelopeModule extends Module {
       this._remainingDecayTime
     );
   }
-  set release(value: number) {
-    this._release = value;
+  public setRelease(value: number): void {
+    this._release = Math.max(value, this.minValue);
   }
 }

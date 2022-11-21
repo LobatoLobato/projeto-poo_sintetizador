@@ -4,18 +4,21 @@ import {
   FLStandardKnob,
   FLStandardKnobOptions,
 } from "precision-inputs/dist/precision-inputs";
+import { Utils } from "common";
 export interface KnobProps extends FLStandardKnobOptions {
   className?: string;
   title?: string;
   onValueChange?: (value: number) => void;
   onMount?: (knob: FLStandardKnob) => void;
+  logarithmic?: boolean;
 }
 export function Knob(props: KnobProps) {
   const knobContainer = useRef<HTMLDivElement>(null);
   const { className, title, onValueChange, onMount } = props;
-  // const deps = Object.entries(props).filter(([name]) => {
-  //   return name !== "onValueChange";
-  // });
+  const min = props.min ?? 0;
+  const max = props.max ?? 1;
+  const step = props.step ?? 0.01;
+
   useEffect(
     () => {
       if (!knobContainer.current) return;
@@ -26,15 +29,17 @@ export function Knob(props: KnobProps) {
         ...props,
         initial: props.initial ?? 0,
       });
-      knob.addEventListener("change", () => {
-        if (onValueChange) onValueChange(knob.value ?? 0);
-      });
-      knob.addEventListener("dblclick", () => {
-        if (onValueChange) onValueChange(knob.value ?? 0);
-      });
-      knob.addEventListener("wheel", () => {
-        if (onValueChange) onValueChange(knob.value ?? 0);
-      });
+      function handleValueChange() {
+        const kValue = knob.value ?? 0;
+        const value = props.logarithmic
+          ? Utils.linToLogScale(kValue, min, max, step)
+          : kValue;
+
+        if (onValueChange) onValueChange(value);
+      }
+      knob.addEventListener("change", handleValueChange);
+      knob.addEventListener("dblclick", handleValueChange);
+      knob.addEventListener("wheel", handleValueChange);
       if (onMount) onMount(knob);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

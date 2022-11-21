@@ -1,16 +1,13 @@
 import { LFOModule, ModuleProps } from "models";
-import { Envelope, Slider, WaveformSelector } from "components";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Envelope, WaveformSelector } from "components";
+import { useEffect, useMemo, useState } from "react";
 import "./LFO.scss";
-import { Utils } from "common";
 import { PRESET_MANAGER } from "controller";
 import { IEnvelopeParams, ILFOParams } from "models/Data";
 
 export function LFO(props: ModuleProps<LFOModule>) {
   const lfo = useMemo(() => new LFOModule(), []);
-  const rateSlider = useRef<Slider>(null);
   const [type, setType] = useState<OscillatorType | undefined>("sine");
-  const [rate, setRate] = useState(0.01);
   const rateEnvelope = {
     getValues: useState<() => IEnvelopeParams>(),
     setValues: useState<(values: IEnvelopeParams | undefined) => void>(),
@@ -29,7 +26,6 @@ export function LFO(props: ModuleProps<LFOModule>) {
     PRESET_MANAGER.saveToCurrentPreset<ILFOParams>({
       discriminator: "LFOParams",
       type: type,
-      rate: rateSlider.current?.getValue(),
       rateEnvelope: getRateEnvelopeValues?.(),
       ampEnvelope: getAmpEnvelopeValues?.(),
     });
@@ -42,7 +38,6 @@ export function LFO(props: ModuleProps<LFOModule>) {
     const [setRateEnvelopeValues] = rateEnvelope.setValues;
     const [setAmpEnvelopeValues] = ampEnvelope.setValues;
     setType(params.type);
-    rateSlider.current?.setValue(params.rate);
     setRateEnvelopeValues?.(params.rateEnvelope);
     setAmpEnvelopeValues?.(params.ampEnvelope);
     console.log("Loading lfo parameters");
@@ -76,71 +71,35 @@ export function LFO(props: ModuleProps<LFOModule>) {
         onClick={(wave) => (lfo.osc.type = wave)}
         value={type}
       />
-      <Slider
-        title="Rate"
-        ref={rateSlider}
-        titleClassName="text-sm whitespace-nowrap"
-        className="flex h-fit w-full items-center gap-x-1  bg-zinc-700 p-1"
-        outputClassName="slider-output w-fit px-1 text-center h-fit col-span-1 "
-        max={10}
-        defaultValue={2}
-        step={0.01}
-        outputValue={rate.toFixed(2)}
-        onInput={(value) => {
-          value = Utils.linToExp2(value, 0, 10);
-          lfo.osc.frequency = value;
-          setRate(value);
-        }}
-      />
       <Envelope
-        title="Rate Envelope"
+        title="Rate"
         className="flex h-full flex-col bg-zinc-700"
         onMount={(get, set) => {
           rateEnvelope.getValues[1](get);
           rateEnvelope.setValues[1](set);
         }}
+        envelopeModule={lfo.osc.envelope}
         amount={{
-          onValueChange: (value) => {
-            lfo.osc.envelope.amount = Utils.linToExp2(value, 0, 1) * 1000;
-          },
-        }}
-        attack={{
-          onValueChange: (value) => (lfo.osc.envelope.attack = value * 5),
-        }}
-        decay={{
-          onValueChange: (value) => (lfo.osc.envelope.decay = value * 10),
+          logarithmic: true,
+          max: 1000,
         }}
         sustain={{
-          onValueChange: (value) => (lfo.osc.envelope.sustain = value),
           initial: 1,
-        }}
-        release={{
-          onValueChange: (value) => (lfo.osc.envelope.release = value * 10),
         }}
       />
       <Envelope
-        title="Amplitude Envelope"
+        title="Amplitude"
         className="flex h-full flex-col bg-zinc-700"
         onMount={(get, set) => {
           ampEnvelope.getValues[1](get);
           ampEnvelope.setValues[1](set);
         }}
+        envelopeModule={lfo.amp.envelope}
         amount={{
-          onValueChange: (value) => (lfo.amp.envelope.amount = value / 2),
           initial: 0.5,
         }}
-        attack={{
-          onValueChange: (value) => (lfo.amp.envelope.attack = value * 5),
-        }}
-        decay={{
-          onValueChange: (value) => (lfo.amp.envelope.decay = value * 10),
-        }}
         sustain={{
-          onValueChange: (value) => (lfo.amp.envelope.sustain = value),
           initial: 1,
-        }}
-        release={{
-          onValueChange: (value) => (lfo.amp.envelope.release = value * 10),
         }}
       />
     </div>

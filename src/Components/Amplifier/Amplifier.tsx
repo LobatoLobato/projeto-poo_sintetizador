@@ -52,6 +52,7 @@ export function Amplifier(props: ModuleProps<AmplifierModule>) {
       amplifier.connect(connectTo);
     }
   }, [connectTo, amplifier]);
+
   return (
     <div className="amplifier">
       Amplifier
@@ -68,22 +69,12 @@ export function Amplifier(props: ModuleProps<AmplifierModule>) {
           envelope.getValues[1](getValues);
           envelope.setValues[1](setValues);
         }}
+        envelopeModule={amplifier.envelope}
         amount={{
           initial: 0.22,
-          onValueChange: (value) => (amplifier.envelope.amount = value),
-        }}
-        attack={{
-          onValueChange: (value) => (amplifier.envelope.attack = value * 5),
-        }}
-        decay={{
-          onValueChange: (value) => (amplifier.envelope.decay = value * 10),
         }}
         sustain={{
           initial: 1,
-          onValueChange: (value) => (amplifier.envelope.sustain = value),
-        }}
-        release={{
-          onValueChange: (value) => (amplifier.envelope.release = value * 10),
         }}
       />
       <Slider
@@ -91,11 +82,11 @@ export function Amplifier(props: ModuleProps<AmplifierModule>) {
         titleClassName="text-xs whitespace-nowrap"
         className="flex h-fit w-full items-center gap-x-1 bg-zinc-700 p-1"
         outputClassName="slider-output w-fit px-1 text-center h-fit"
-        max={2}
+        max={1}
         step={0.01}
-        outputValue={lfoDepth.toFixed(2)}
+        outputValue={Utils.linToLogScale(lfoDepth, 0, 1, 0.01).toFixed(2)}
         onInput={(value) => {
-          value = Utils.linToExp2(value, 0, 3);
+          // value = Utils.linToExp2(value, 0, 3);
           setLfoDepth(value);
           amplifier.lfoAmount = value;
         }}

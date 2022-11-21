@@ -45,7 +45,7 @@
     "@types/node": "^16.18.3",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
-    "@types/wicg-file-system-access": "^2020.9.5",
+    "auto-bind": "^5.0.1",
     "file-saver": "^2.0.5",
     "is-electron": "^2.2.1",
     "pixi.js": "^7.0.4",
@@ -61,6 +61,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@types/wicg-file-system-access": "^2020.9.5",
     "@types/electron": "^1.6.10",
     "@types/file-saver": "^2.0.5",
     "autoprefixer": "^10.4.13",

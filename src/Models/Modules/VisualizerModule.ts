@@ -14,7 +14,7 @@ interface IRenderer extends PIXI.IRenderer {
 
 const DEFAULT_LINE_WIDTH = 1.2;
 const WAVE_PIXELS_PER_SAMPLE = 0.4;
-export class VisualizerModule extends Module {
+export class VisualizerModule extends Module<AnalyserNode> {
   public readonly node: AnalyserNode = new AnalyserNode(Module.context, {
     fftSize: 2048,
     smoothingTimeConstant: 0.25,
