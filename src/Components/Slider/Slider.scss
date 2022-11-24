@@ -1,47 +1,32 @@
-.slider-default {
-  .slider-label {
-    @apply text-center;
-  }
-  .slider-input {
-    .input-track {
-      @apply flex items-center justify-center
+.slider-input {
+  .input-track {
+    @apply flex items-center justify-center
       rounded-full bg-[#ccc];
-    }
-    .input-track.horizontal {
-      @apply my-1 h-1 w-full px-1.5;
-    }
-    .input-track.vertical {
-      @apply mx-1 h-full w-1 py-1.5;
-    }
-    .input-progress {
-      @apply self-center rounded-full;
-    }
-    .input-progress.horizontal {
-      @apply h-1 w-full;
-    }
-    .input-progress.vertical {
-      @apply h-full w-1;
-    }
-    .input-thumb {
-      @apply h-3 w-3 rounded-full bg-[#ff005d] shadow-sm 
-      transition-colors duration-300 ease-in-out hover:bg-gray-100
-      focus:cursor-grabbing active:cursor-grabbing active:bg-gray-100;
-    }
   }
-  .slider-input.horizontal {
-    @apply w-full;
+  .input-track.horizontal {
+    @apply my-1 h-1 w-full px-1.5;
   }
-  .slider-input.vertical {
-    @apply h-full;
+  .input-track.vertical {
+    @apply mx-1 h-full w-1 py-1.5;
   }
-  .slider-output {
-    @apply rounded-sm bg-white bg-opacity-20 
-    text-center text-xs shadow-inner shadow-zinc-700;
+  .input-progress {
+    @apply self-center rounded-full;
   }
-  .slider-output.horizontal {
-    @apply w-2/12 min-w-fit px-1;
+  .input-progress.horizontal {
+    @apply h-1 w-full;
   }
-  .slider-output.vertical {
-    @apply w-1/4 min-w-fit px-1;
+  .input-progress.vertical {
+    @apply h-full w-1;
   }
+  .input-thumb {
+    @apply h-3 w-3 rounded-full bg-[#ff005d] shadow-sm 
+      transition-colors duration-300 ease-in-out focus:cursor-grabbing
+      hover:bg-gray-100 active:cursor-grabbing active:bg-gray-100;
+  }
+}
+.slider-input.horizontal {
+  @apply w-full;
+}
+.slider-input.vertical {
+  @apply h-full;
 }

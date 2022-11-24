@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { VisualizerModule } from "models";
 
 interface AudioVisualizerProps {
-  onMount: (node: AnalyserNode) => void;
+  onMount: (module: VisualizerModule) => void;
   frequency?: number;
   className?: string;
 }
@@ -12,7 +12,7 @@ export function AudioVisualizer(props: AudioVisualizerProps) {
 
   const { onMount, className, frequency } = props;
   useEffect(() => {
-    if (onMount && visualizer) onMount(visualizer.getAudioNode());
+    if (onMount && visualizer) onMount(visualizer);
   }, [onMount, visualizer]);
   useEffect(() => {
     if (!frequency || !visualizer) return;

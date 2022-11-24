@@ -2,13 +2,14 @@ import { Module, IModulator } from "models";
 import autoBind from "auto-bind";
 
 export class EnvelopeModule extends Module<GainNode> implements IModulator {
+  protected inputNode: GainNode = new GainNode(Module.context, {
+    gain: this.minValue,
+  });
+  public readonly outputNode: GainNode = this.inputNode;
   private readonly source: ConstantSourceNode = new ConstantSourceNode(
     Module.context,
     { offset: this.minValue }
   );
-  public readonly node: GainNode = new GainNode(Module.context, {
-    gain: this.minValue,
-  });
   private _amount: number = this.maxValue;
   private _attack: number = this.minValue;
   private _decay: number = this.minValue;
@@ -16,13 +17,18 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
   private _release: number = this.minValue;
   private _remainingAttackTime: number = this.minValue;
   private _remainingDecayTime: number = this.minValue;
-
-  constructor(maxValue: number, initialValue?: number) {
+  private _ref: Module | undefined;
+  constructor(
+    maxValue: number,
+    initialValue?: number,
+    options?: { ref: Module }
+  ) {
     super();
     autoBind(this);
+    this._ref = options?.ref;
     if (initialValue) this.setAmount(initialValue);
     this.maxValue = Math.max(maxValue, this.minValue);
-    this.source.connect(this.node);
+    this.source.connect(this.outputNode);
     this.source.start();
   }
 
@@ -82,8 +88,14 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
   }
   public setAmount(value: number): void {
     value = value || this.minValue;
+    // if (this._destination instanceof AudioParam) {
+    //   if (value < 0) {
+    //     value = Math.max(value, -this._destination.value);
+    //     console.log(value);
+    //   }
+    // }
     this._amount = value;
-    this.node.gain.setValueAtTime(value, this.currentTime());
+    this.outputNode.gain.setValueAtTime(value, this.currentTime());
   }
   public setAttack(value: number): void {
     this._attack = Math.max(value, this.minValue);
@@ -116,5 +128,8 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
   }
   public setRelease(value: number): void {
     this._release = Math.max(value, this.minValue);
+  }
+  public getSourceNode(): ConstantSourceNode {
+    return this.source;
   }
 }

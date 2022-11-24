@@ -1,6 +1,7 @@
 import { InputRange } from "./InputRange";
 import "./Slider.scss";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Utils } from "common";
 
 interface SliderProps {
   className?: string;
@@ -84,46 +85,69 @@ export class Slider extends React.Component<SliderProps, { value?: number }> {
     );
   }
 }
-// export const Slider = React.forwardRef<Range, SliderProps>((props, ref) => {
-//   const { inputClassNames, inputClassName } = props;
-//   const { key, step, min, max, defaultValue, outputValue, value } = props;
-//   const labelKey = props.key ? `label-${key}` : undefined;
-//   const outputKey = props.key ? `output-${key}` : undefined;
-//   const inputKey = props.key ? `input-${key}` : undefined;
-//   const classNameMod = props.orientation || "horizontal";
-//   const className = `${props.className} slider-default`;
-//   const labelCN = props.titleClassName || "slider-label";
-//   const inputCN =
-//     inputClassNames?.at(0) || `${inputClassName} slider-input ${classNameMod}`;
-//   const trackCN = inputClassNames?.at(1) || `input-track ${classNameMod}`;
-//   const progressCN = inputClassNames?.at(2) || `input-progress ${classNameMod}`;
-//   const thumbCN = inputClassNames?.at(3) || `input-thumb ${classNameMod}`;
-//   const outputCN = props.outputClassName || `slider-output ${classNameMod}`;
-
-//   return (
-//     <div key={key} className={className}>
-//       <label key={labelKey} className={labelCN}>
-//         {props.title}
-//       </label>
-
-//       <InputRange
-//         className={inputCN}
-//         trackClassName={trackCN}
-//         progressClassname={progressCN}
-//         thumbClassname={thumbCN}
-//         colors={props.colors || ["#ff4000", "#ff0099", "#ddd"]}
-//         onChange={props.onInput}
-//         defaultValue={defaultValue}
-//         step={step}
-//         min={min}
-//         max={max}
-//         orientation={props.orientation}
-//         key={inputKey}
-//         value={value}
-//       />
-//       <output key={outputKey} className={outputCN}>
-//         {outputValue}
-//       </output>
-//     </div>
-//   );
-// });
+interface SliderProps2 {
+  className?: string;
+  inputClassNames?: string[];
+  colors?: string[];
+  orientation?: "vertical" | "horizontal";
+  max?: number;
+  min?: number;
+  step?: number;
+  defaultValue?: number;
+  key?: string;
+  logarithmic?: boolean;
+  onInput?: (value: number) => void;
+  onMount?: (
+    setValue: () => (value: number, linearize?: boolean) => void
+  ) => void;
+}
+export function Slider2(props: SliderProps2) {
+  const { className, inputClassNames } = props;
+  const { onMount } = props;
+  const { step, min, max, defaultValue, logarithmic } = props;
+  const [value, setValue] = useState(0);
+  const inputKey = props.key ? `input-${props.key}` : undefined;
+  const CNMod = props.orientation || "horizontal";
+  const [input_CN, track_CN, prog_CN, thumb_cn] = inputClassNames ?? [];
+  const inputCN = input_CN ?? `${className} slider-input ${CNMod}`;
+  const trackCN = track_CN ?? `input-track ${CNMod}`;
+  const progressCN = prog_CN ?? `input-progress ${CNMod}`;
+  const thumbCN = thumb_cn ?? `input-thumb ${CNMod}`;
+  useEffect(() => {
+    if (onMount)
+      onMount(() => (value: number, linearize?: boolean) => {
+        if (linearize) {
+          setValue(
+            Utils.logToLinScale(value, min ?? 0, max ?? 100, step ?? 0.1)
+          );
+        } else {
+          setValue(value);
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [max, min, step]);
+  return (
+    <InputRange
+      className={inputCN}
+      trackClassName={trackCN}
+      progressClassname={progressCN}
+      thumbClassname={thumbCN}
+      colors={props.colors || ["#ff4000", "#ff0099", "#ddd"]}
+      onChange={(value) => {
+        const out = logarithmic
+          ? Utils.linToLogScale(value, min ?? 0, max ?? 100, step ?? 0.1)
+          : value;
+        if (props.onInput) props.onInput(out);
+        setValue(value);
+        console.log(out);
+      }}
+      defaultValue={defaultValue}
+      step={step}
+      min={min}
+      max={max}
+      orientation={props.orientation}
+      key={inputKey}
+      value={value}
+    />
+  );
+}

@@ -10,7 +10,7 @@
     "eject": "craco eject",
     "electron:build": "cd ./src/electron && tsc",
     "electron:watch": "cd ./src/electron && tsc --watch",
-    "electron:start": "npm run electron:build && wait-on tcp:127.0.0.1:3000 && electron .",
+    "electron:start": "npm run electron:build && wait-on tcp:127.0.0.1:4242 && electron .",
     "electron:react-start": "cross-env BROWSER=none craco start",
     "electron:dev": "concurrently --kill-others-on-fail \"npm:electron:react-start\" \"npm:electron:start\" \"npm:electron:watch\""
   },
@@ -61,9 +61,9 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "@types/wicg-file-system-access": "^2020.9.5",
     "@types/electron": "^1.6.10",
     "@types/file-saver": "^2.0.5",
+    "@types/wicg-file-system-access": "^2020.9.5",
     "autoprefixer": "^10.4.13",
     "concurrently": "^7.5.0",
     "electron": "^21.3.0",

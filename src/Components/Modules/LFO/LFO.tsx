@@ -1,12 +1,11 @@
-import { LFOModule, ModuleProps } from "models";
+import { ModuleProps } from "models";
 import { Envelope, WaveformSelector } from "components";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import "./LFO.scss";
 import { PRESET_MANAGER } from "controller";
 import { IEnvelopeParams, ILFOParams } from "models/Data";
 
-export function LFO(props: ModuleProps<LFOModule>) {
-  const lfo = useMemo(() => new LFOModule(), []);
+export function LFO(props: ModuleProps<ILFOParams>) {
   const [type, setType] = useState<OscillatorType | undefined>("sine");
   const rateEnvelope = {
     getValues: useState<() => IEnvelopeParams>(),
@@ -17,19 +16,14 @@ export function LFO(props: ModuleProps<LFOModule>) {
     setValues: useState<(values: IEnvelopeParams | undefined) => void>(),
   };
 
-  const { connectTo, noteOn, noteOff } = props;
+  const [lfoParams, setLFOParams] = useState<ILFOParams>({
+    discriminator: "LFOParams",
+  });
+  const { onChange } = props;
   const { savePreset, loadPreset } = props;
   useEffect(() => {
     if (!savePreset) return;
-    const [getRateEnvelopeValues] = rateEnvelope.getValues;
-    const [getAmpEnvelopeValues] = ampEnvelope.getValues;
-    PRESET_MANAGER.saveToCurrentPreset<ILFOParams>({
-      discriminator: "LFOParams",
-      type: type,
-      rateEnvelope: getRateEnvelopeValues?.(),
-      ampEnvelope: getAmpEnvelopeValues?.(),
-    });
-    console.log("Saving lfo parameters");
+    PRESET_MANAGER.saveToCurrentPreset<ILFOParams>(lfoParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savePreset]);
   useEffect(() => {
@@ -40,43 +34,29 @@ export function LFO(props: ModuleProps<LFOModule>) {
     setType(params.type);
     setRateEnvelopeValues?.(params.rateEnvelope);
     setAmpEnvelopeValues?.(params.ampEnvelope);
-    console.log("Loading lfo parameters");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPreset]);
 
   useEffect(() => {
-    if (!connectTo) return;
-    if (Array.isArray(connectTo)) {
-      connectTo.forEach((destination) => lfo.connect(destination));
-    } else {
-      lfo.connect(connectTo);
-    }
-  }, [connectTo, lfo]);
-  useEffect(() => {
-    if (!noteOn || (noteOn.note < 0 && !noteOn.active)) return;
-    lfo.start();
-  }, [noteOn, lfo]);
-
-  useEffect(() => {
-    if (!noteOff || !noteOff.active) return;
-    lfo.stop();
-  }, [noteOff, lfo]);
-
+    onChange?.(lfoParams);
+  }, [lfoParams, onChange]);
   return (
     <div className="lfo-container">
       LFO
       <WaveformSelector
-        onClick={(wave) => lfo.osc.setType(wave)}
+        onClick={(type) => {
+          // lfo.osc.setType(type);
+          setLFOParams((p) => ({ ...p, type }));
+        }}
         value={type}
       />
       <Envelope
         title="Rate"
         className="flex h-full flex-col bg-zinc-700"
-        onMount={(get, set) => {
-          rateEnvelope.getValues[1](get);
-          rateEnvelope.setValues[1](set);
-        }}
-        envelopeModule={lfo.osc.envelope}
+        onMount={rateEnvelope.setValues[1]}
+        onChange={(rateEnvelope) =>
+          setLFOParams((p) => ({ ...p, rateEnvelope }))
+        }
         amount={{
           logarithmic: true,
           max: 1000,
@@ -88,17 +68,10 @@ export function LFO(props: ModuleProps<LFOModule>) {
       <Envelope
         title="Amplitude"
         className="flex h-full flex-col bg-zinc-700"
-        onMount={(get, set) => {
-          ampEnvelope.getValues[1](get);
-          ampEnvelope.setValues[1](set);
-        }}
-        envelopeModule={lfo.amp.envelope}
-        amount={{
-          initial: 0.5,
-        }}
-        sustain={{
-          initial: 1,
-        }}
+        onMount={ampEnvelope.setValues[1]}
+        onChange={(ampEnvelope) => setLFOParams((p) => ({ ...p, ampEnvelope }))}
+        amount={{ initial: 0.5 }}
+        sustain={{ initial: 1 }}
       />
     </div>
   );

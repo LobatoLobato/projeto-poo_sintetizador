@@ -3,7 +3,7 @@ import "./Envelope.scss";
 import { useEffect, useMemo, useState } from "react";
 import { FLStandardKnob } from "precision-inputs/dist/precision-inputs";
 import { IEnvelopeParams } from "models/Data/IEnvelopeParams";
-import { EnvelopeModule } from "models";
+import { Utils } from "common";
 
 interface EnvelopeProps {
   className?: string;
@@ -15,10 +15,9 @@ interface EnvelopeProps {
   sustain?: KnobProps;
   release?: KnobProps;
   onMount?: (
-    getValues: () => () => IEnvelopeParams,
     setValues: () => (values: IEnvelopeParams | undefined) => void
   ) => void;
-  envelopeModule?: EnvelopeModule;
+  onChange?: (envelope: IEnvelopeParams) => void;
 }
 export function Envelope(props: EnvelopeProps) {
   const [amKnob, setAmKnob] = useState<FLStandardKnob>();
@@ -26,59 +25,68 @@ export function Envelope(props: EnvelopeProps) {
   const [deKnob, setDeKnob] = useState<FLStandardKnob>();
   const [suKnob, setSuKnob] = useState<FLStandardKnob>();
   const [reKnob, setReKnob] = useState<FLStandardKnob>();
-  const { className, onMount, envelopeModule } = props;
-
+  const { className, onMount, onChange } = props;
+  const [envelopeParams, setEnvelopeParams] = useState<IEnvelopeParams>({});
+  const { amount, attack, decay, sustain, release } = props;
   const dragResistance = 50;
-  const getValues = useMemo(() => {
-    return function (): IEnvelopeParams {
-      return {
-        amount: amKnob?.value,
-        attack: atKnob?.value,
-        decay: deKnob?.value,
-        sustain: suKnob?.value,
-        release: reKnob?.value,
-      };
-    };
-  }, [amKnob, atKnob, deKnob, reKnob, suKnob]);
+
   const setValues = useMemo(() => {
     return function (values: IEnvelopeParams | undefined): void {
       if (!amKnob || !atKnob || !deKnob || !suKnob || !reKnob || !values) {
         return;
       }
-      amKnob.value = values.amount;
-      atKnob.value = values.attack;
-      deKnob.value = values.decay;
-      suKnob.value = values.sustain;
-      reKnob.value = values.release;
+      amKnob.value = values.amount ?? amount?.initial ?? 0;
+      atKnob.value = Utils.logToLinScale(
+        values.attack ?? attack?.initial ?? 0,
+        attack?.min ?? 0,
+        attack?.max ?? 50,
+        attack?.step ?? 0.1
+      );
+      deKnob.value = Utils.logToLinScale(
+        values.decay ?? decay?.initial ?? 0,
+        decay?.min ?? 0,
+        decay?.max ?? 50,
+        decay?.step ?? 0.1
+      );
+      suKnob.value = values.sustain ?? sustain?.initial ?? 0;
+      reKnob.value = Utils.logToLinScale(
+        values.release ?? release?.initial ?? 0,
+        release?.min ?? 0,
+        release?.max ?? 50,
+        release?.step ?? 0.1
+      );
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amKnob, atKnob, deKnob, reKnob, suKnob]);
+
   const onAmountChange = (value: number) => {
-    props.amount?.onValueChange?.(value);
-    if (envelopeModule) envelopeModule.setAmount(value);
+    if (amKnob) value = value ?? amKnob.initial;
+    setEnvelopeParams((p) => ({ ...p, amount: value }));
   };
   const onAttackChange = (value: number) => {
-    props.attack?.onValueChange?.(value);
-    if (envelopeModule) envelopeModule.setAttack(value);
+    if (atKnob) value = value ?? atKnob.initial;
+    setEnvelopeParams((p) => ({ ...p, attack: value }));
   };
   const onDecayChange = (value: number) => {
-    props.decay?.onValueChange?.(value);
-    if (envelopeModule) envelopeModule.setDecay(value);
+    if (deKnob) value = value ?? deKnob.initial;
+    setEnvelopeParams((p) => ({ ...p, decay: value }));
   };
   const onSustainChange = (value: number) => {
-    props.sustain?.onValueChange?.(value);
-    if (envelopeModule) envelopeModule.setSustain(value);
+    if (suKnob) value = value ?? suKnob.initial;
+    setEnvelopeParams((p) => ({ ...p, sustain: value }));
   };
   const onReleaseChange = (value: number) => {
-    props.release?.onValueChange?.(value);
-    if (envelopeModule) envelopeModule.setRelease(value);
+    if (reKnob) value = value ?? reKnob.initial;
+    setEnvelopeParams((p) => ({ ...p, release: value }));
   };
   useEffect(() => {
     if (!onMount) return;
-    onMount(
-      () => getValues,
-      () => setValues
-    );
-  }, [getValues, onMount, setValues]);
+    onMount(() => setValues);
+  }, [onMount, setValues]);
+  useEffect(() => {
+    onChange?.(envelopeParams);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [envelopeParams]);
   return (
     <div className={className}>
       <h3>{props.title ?? "Envelope"}</h3>
@@ -121,7 +129,7 @@ export function Envelope(props: EnvelopeProps) {
           onValueChange={props.release?.onValueChange ?? onReleaseChange}
           logarithmic
           max={props.release?.max ?? 50}
-          step={props.release?.step ?? 1}
+          step={props.release?.step ?? 0.1}
           {...props.release}
         />
         <Knob

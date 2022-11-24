@@ -7,7 +7,7 @@ export interface IOscillatorParams {
   pitchOffset?: number;
   envelope?: IEnvelopeParams;
   detune?: number;
-  lfo_depth?: number;
+  lfoDepth?: number;
 }
 
 export interface IUnisonParams {

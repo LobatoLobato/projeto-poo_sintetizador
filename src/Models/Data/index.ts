@@ -13,6 +13,7 @@ export interface IDataInterfaces {
   AmplifierParams: IAmplifierParams;
   OscillatorParams: IOscillatorParams;
   LFOParams: ILFOParams;
+  FilterParams: IFilterParams;
 }
 
 export {

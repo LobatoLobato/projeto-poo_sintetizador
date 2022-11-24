@@ -15,18 +15,22 @@ interface IRenderer extends PIXI.IRenderer {
 const DEFAULT_LINE_WIDTH = 1.2;
 const WAVE_PIXELS_PER_SAMPLE = 0.4;
 export class VisualizerModule extends Module<AnalyserNode> {
-  protected readonly node: AnalyserNode = new AnalyserNode(Module.context, {
-    fftSize: 2048,
-    smoothingTimeConstant: 0.25,
-  });
+  protected readonly inputNode: AnalyserNode = new AnalyserNode(
+    Module.context,
+    {
+      fftSize: 2048,
+      smoothingTimeConstant: 0.25,
+    }
+  );
+  protected readonly outputNode: AnalyserNode = this.inputNode;
   private stage: PIXI.Container;
   private renderer: IRenderer;
   private view: HTMLCanvasElement;
   private graphics: PIXI.Graphics;
   private enabled: boolean = false;
   private mode: MODE = MODE.DISABLED;
-  private data: Uint8Array = new Uint8Array(this.node.frequencyBinCount);
-  private floatData = new Float32Array(this.node.frequencyBinCount);
+  private data: Uint8Array = new Uint8Array(this.inputNode.frequencyBinCount);
+  private floatData = new Float32Array(this.inputNode.frequencyBinCount);
   private period: number = 0;
   private lastTime: number = 0;
   private width: number = 0;
@@ -58,7 +62,6 @@ export class VisualizerModule extends Module<AnalyserNode> {
       antialias: true,
       view: this.view,
     });
-    console.log(this.renderer);
     // Create a pixi graphics instance
     this.graphics = new PIXI.Graphics();
     this.graphics.lineStyle(DEFAULT_LINE_WIDTH, this.foregroundColor);
@@ -113,20 +116,20 @@ export class VisualizerModule extends Module<AnalyserNode> {
     this.mode = MODE.FFT;
     this.enable();
     try {
-      this.node.fftSize =
+      this.inputNode.fftSize =
         Math.pow(2, Math.ceil(Math.log(this.width) / Math.LN2)) * 16;
     } catch (e) {
       // Probably went over a browser limitation, try 2048...
-      this.node.fftSize = 2048;
+      this.inputNode.fftSize = 2048;
     }
-    this.data = new Uint8Array(this.node.frequencyBinCount);
+    this.data = new Uint8Array(this.inputNode.frequencyBinCount);
   }
 
   public setModeWave() {
     this.mode = MODE.WAVE;
     this.enable();
-    this.node.fftSize = 2048;
-    this.floatData = new Float32Array(this.node.frequencyBinCount);
+    this.inputNode.fftSize = 2048;
+    this.floatData = new Float32Array(this.inputNode.frequencyBinCount);
   }
 
   public setPeriod(frequency: number) {
@@ -155,7 +158,7 @@ export class VisualizerModule extends Module<AnalyserNode> {
 
     if (this.mode === MODE.FFT) {
       const data = this.data;
-      this.node.getByteFrequencyData(data);
+      this.inputNode.getByteFrequencyData(data);
 
       graphics.moveTo(0, height);
       graphics.lineTo(this.width, height);
@@ -168,7 +171,7 @@ export class VisualizerModule extends Module<AnalyserNode> {
       });
     } else if (this.mode === MODE.WAVE) {
       const data = this.floatData;
-      this.node.getFloatTimeDomainData(data);
+      this.inputNode.getFloatTimeDomainData(data);
 
       graphics.moveTo(0, height / 2);
       graphics.lineTo(this.width, height / 2);

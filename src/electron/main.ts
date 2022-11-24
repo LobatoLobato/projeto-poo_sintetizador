@@ -21,7 +21,7 @@ function createWindow() {
   });
   // console.log(__dirname);
   const startUrl = isDev
-    ? "http://localhost:3000"
+    ? "http://localhost:4242"
     : `file://${path.join(__dirname, "../build/index.html")}`;
 
   // and load the path of the app.

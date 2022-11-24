@@ -1,27 +1,19 @@
 .amplifier {
   @apply flex h-5/6 min-h-fit w-72 shrink-0
   flex-col gap-0.5 bg-zinc-800 px-1 pb-1 text-center text-white;
-}
-.visualizer-container {
-  @apply flex h-1/2 w-full rounded-sm bg-zinc-700 p-2;
-  .visualizer {
-    @apply box-content w-full overflow-hidden
-    rounded-md border-2 border-zinc-800 bg-zinc-900 text-white;
+  .visualizer-container {
+    @apply flex h-1/2 w-full rounded-sm bg-zinc-700 p-2;
+    .visualizer {
+      @apply box-content w-full overflow-hidden
+      rounded-md border-2 border-zinc-800 bg-zinc-900 text-white;
+    }
   }
-}
-.amplifier-envelope {
-  @apply flex max-h-fit w-full flex-col gap-2;
-}
-
-.amplifier-slider-container {
-  @apply flex w-full flex-wrap bg-blue-400;
-}
-.amplifier-slider-title {
-  @apply w-full shrink-0 text-sm;
-}
-.amplifier-slider {
-  @apply w-10/12;
-}
-.amplifier-slider-value {
-  @apply w-2/12;
+  .amplifier-envelope {
+    @apply flex h-fit w-full grow flex-col bg-zinc-700 
+    px-1 pb-1 text-center text-sm;
+  }
+  .amplifier-lfo-slider {
+    @apply flex h-fit w-full items-center gap-x-1 whitespace-nowrap
+    bg-zinc-700 p-1 text-xs;
+  }
 }

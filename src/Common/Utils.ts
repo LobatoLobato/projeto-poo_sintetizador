@@ -5,10 +5,10 @@ export namespace Utils {
    * @param x O valor da escala linear
    * @param x0 O limite inferior da escala linear
    * @param x1 O limite superior da escala linear
-   * @param c A constante de incremento da escala linear (Necessária se x0 for igual a 0)
+   * @param c A constante de incremento da escala linear (Opcional, ajuda a definir a curva)
    * @param y0 O limite inferior da escala logaritmica (Por padrão é igual a x0)
    * @param y1 O limite superior da escala logaritmica (Por padrão é igual a x1)
-   * @returns
+   * @returns O valor na escala logaritmica
    */
   export function linToLogScale(
     x: number,
@@ -24,7 +24,32 @@ export namespace Utils {
     const log = lin * (Math.log(y1) - Math.log(y0 + C)) + Math.log(y0 + C);
     return Math.pow(Math.E, log);
   }
-
+  /**
+   * Converte o valor obtido de uma escala logaritmica
+   * para o seu equivalente numa escala linear.
+   * @param y O valor da escala logaritmica
+   * @param y0 O limite inferior da escala logaritmica
+   * @param y1 O limite superior da escala logaritmica
+   * @param c A constante de incremento da escala linear (Opcional, ajuda a linearizar a curva)
+   * @param x0 O limite inferior da escala logaritmica (Por padrão é igual a y0)
+   * @param x1 O limite superior da escala logaritmica (Por padrão é igual a y1)
+   * @returns O valor na escala linear
+   */
+  export function logToLinScale(
+    y: number,
+    y0: number,
+    y1: number,
+    c?: number,
+    x0: number = y0,
+    x1: number = y1
+  ) {
+    const C = c ?? 0.000000000000001;
+    const lin = x1 - x0;
+    const log =
+      (Math.log(Math.max(y, C)) - Math.log(y0 + C)) /
+      (Math.log(y1) - Math.log(y0 + C));
+    return lin * log + x0;
+  }
   /**
    * Converte o valor de uma função linear para o valor de uma função exponencial de base 2
    * @param x Valor
@@ -122,5 +147,12 @@ export namespace Utils {
    */
   export function toFixedNum(num: number, precision: number): number {
     return parseFloat(num.toFixed(precision));
+  }
+
+  /**
+   *
+   */
+  export function isNumber(v: any): boolean {
+    return typeof v === "number";
   }
 }

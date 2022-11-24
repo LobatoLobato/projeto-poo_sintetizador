@@ -22,7 +22,7 @@ KeyboardHandler.addKeyDownListener((ev, note) => {
 });
 KeyboardHandler.addKeyUpListener((ev, note) => {
   const currentKey = ev.key.toUpperCase();
-  if (pressedKey.value !== currentKey) return;
+  // if (pressedKey.value !== currentKey) return;
   globalNoteOff.setValue({ note, active: true });
   globalNoteOn.setValue({ note, active: false });
   pressedKey.setValue("");

@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./Oscillator.scss";
-import { ModuleProps, OscillatorModule } from "models";
+import { ModuleProps } from "models";
 import { Utils } from "common";
 import { Envelope, Slider, WaveformSelector, Knob } from "components";
 import { FLStandardKnob } from "precision-inputs/dist/precision-inputs";
 import { IEnvelopeParams, IOscillatorParams, IUnisonParams } from "models/Data";
 import { PRESET_MANAGER } from "controller";
 
-export function Oscillator(props: ModuleProps<OscillatorModule>) {
-  const oscillator = useMemo(() => new OscillatorModule(), []);
+export function Oscillator(props: ModuleProps<IOscillatorParams>) {
   const lfoSlider = useRef<Slider>(null);
   const [lfoDepth, setLfoDepth] = useState(0);
   const [type, setType] = useState<OscillatorType | undefined>("sine");
@@ -22,27 +21,15 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
     getValues: useState<() => IEnvelopeParams>(),
     setValues: useState<(values: IEnvelopeParams | undefined) => void>(),
   };
-  const { onMount, noteOn, noteOff, connectTo } = props;
+  const { onChange } = props;
   const { savePreset, loadPreset } = props;
-
-  useEffect(() => {
-    if (onMount) onMount(oscillator);
-  }, [onMount, oscillator]);
+  const [oscParams, setOscParams] = useState<IOscillatorParams>({
+    discriminator: "OscillatorParams",
+  });
 
   useEffect(() => {
     if (savePreset) {
-      const [getEnvelopeValues] = envelope.getValues;
-      const [getUnisonValues] = unison.getValues;
-      PRESET_MANAGER.saveToCurrentPreset<IOscillatorParams>({
-        discriminator: "OscillatorParams",
-        type: type,
-        pitchOffset: poKnob?.value,
-        detune: dtnKnob?.value,
-        unison: getUnisonValues?.(),
-        envelope: getEnvelopeValues?.(),
-        lfo_depth: lfoSlider.current?.getValue(),
-      });
-      console.log("Saving oscillator parameters");
+      PRESET_MANAGER.saveToCurrentPreset(oscParams);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savePreset]);
@@ -54,35 +41,16 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
     if (poKnob) poKnob.value = params.pitchOffset;
     if (dtnKnob) dtnKnob.value = params.detune;
     setType(params.type);
-    lfoSlider.current?.setValue(params.lfo_depth);
+    lfoSlider.current?.setValue(params.lfoDepth);
     setEnvelopeValues?.(params.envelope);
     setUnisonValues?.(params.unison);
 
-    console.log("Loading oscillator parameters");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadPreset]);
 
   useEffect(() => {
-    if (!connectTo) return;
-    if (Array.isArray(connectTo)) {
-      connectTo.forEach((destination) => oscillator.connect(destination));
-    } else {
-      oscillator.connect(connectTo);
-    }
-  }, [connectTo, oscillator]);
-
-  useEffect(() => {
-    if (!noteOn || (noteOn.note < 0 && !noteOn.active)) return;
-    const noteFrequency = Utils.indexToFrequency(noteOn.note);
-    oscillator.setFrequency(noteFrequency);
-    oscillator.envelope.start();
-  }, [noteOn, oscillator]);
-
-  useEffect(() => {
-    if (!noteOff || !noteOff.active) return;
-    oscillator.envelope.stop();
-  }, [noteOff, oscillator]);
-
+    onChange?.(oscParams);
+  }, [oscParams, onChange]);
   return (
     <div className="oscillator-container">
       <h2>Oscillator</h2>
@@ -91,7 +59,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
           className="col-span-1 row-span-2"
           orientation="vertical"
           onClick={(wave) => {
-            oscillator.setType(wave);
+            setOscParams((p) => ({ ...p, type: wave }));
             setType(wave);
           }}
           value={type}
@@ -101,9 +69,10 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
             unison.getValues[1](getValues);
             unison.setValues[1](setValues);
           }}
-          onSizeChanged={oscillator.setUnisonSize}
-          onDetuneChanged={oscillator.setUnisonDetune}
-          onSpreadChanged={oscillator.setUnisonSpread}
+          onChange={(size, detune, spread) => {
+            console.log(size, detune, spread);
+            setOscParams((p) => ({ ...p, unison: { size, detune, spread } }));
+          }}
         />
         <div className="col-span-1 row-span-2 grid grid-rows-2 gap-0.5 bg-zinc-700">
           <Knob
@@ -113,7 +82,9 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
             step={1}
             min={-24}
             max={24}
-            onValueChange={oscillator.setPitchOffset}
+            onValueChange={(value) => {
+              setOscParams((p) => ({ ...p, pitchOffset: value }));
+            }}
             onMount={setPoKnob}
             indicatorRingType="split"
           />
@@ -124,7 +95,9 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
             step={1}
             min={-50}
             max={50}
-            onValueChange={oscillator.setDetune}
+            onValueChange={(value) => {
+              setOscParams((p) => ({ ...p, detune: value }));
+            }}
             onMount={setDtnKnob}
             indicatorRingType="split"
           />
@@ -132,11 +105,8 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
       </div>
       <Envelope
         className="col-span-full flex  w-full grow flex-col bg-zinc-700 px-1 text-center text-sm"
-        onMount={(getValues, setValues) => {
-          envelope.getValues[1](getValues);
-          envelope.setValues[1](setValues);
-        }}
-        envelopeModule={oscillator.envelope}
+        onMount={envelope.setValues[1]}
+        onChange={(envelope) => setOscParams((p) => ({ ...p, envelope }))}
         amount={{
           indicatorRingType: "split",
           initial: 0,
@@ -154,7 +124,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
         outputValue={lfoDepth.toFixed(2)}
         onInput={(value) => {
           value = Utils.linToExp2(value, 0, 2);
-          oscillator.setLfoAmount(value);
+          setOscParams((p) => ({ ...p, lfoDepth: value }));
           setLfoDepth(value);
         }}
         ref={lfoSlider}
@@ -164,9 +134,7 @@ export function Oscillator(props: ModuleProps<OscillatorModule>) {
 }
 
 interface UnisonProps {
-  onSizeChanged(size: number): void;
-  onDetuneChanged(detune: number): void;
-  onSpreadChanged(spread: number): void;
+  onChange(size: number, detune: number, spread: number): void;
   onMount?: (
     getValues: () => () => IUnisonParams,
     setValues: () => (values: IUnisonParams | undefined) => void
@@ -182,7 +150,7 @@ function UnisonThing(props: UnisonProps) {
   const [size, setSize] = useState(0);
   const [detune, setDetune] = useState(0);
   const [spread, setSpread] = useState(0);
-  const { onMount } = props;
+  const { onMount, onChange } = props;
 
   const getValues = useMemo(() => {
     return function () {
@@ -212,7 +180,6 @@ function UnisonThing(props: UnisonProps) {
     );
   }, [getValues, onMount, setValues]);
 
-  //
   function UnisonBars(props: { size: number }) {
     const bars: JSX.Element[] = [];
     const { size } = props;
@@ -228,18 +195,6 @@ function UnisonThing(props: UnisonProps) {
     return <>{bars}</>;
   }
 
-  function handleSizeChange(value: number) {
-    setSize(value);
-    props.onSizeChanged(value);
-  }
-  function handleDetuneChange(value: number) {
-    setDetune(value * 100);
-    props.onDetuneChanged(value * 100);
-  }
-  function handleSpreadChange(value: number) {
-    setSpread(value * 100);
-    props.onSpreadChanged(value * 100);
-  }
   useEffect(() => {
     const [view, bar] = [visualizer.current, middleBar.current];
     if (!view || !bar) return;
@@ -252,7 +207,10 @@ function UnisonThing(props: UnisonProps) {
     if (!spreadView.current) return;
     spreadView.current.style.width = `${spread}%`;
   }, [spread]);
-
+  useEffect(() => {
+    onChange(size, detune, spread);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [size, detune, spread]);
   return (
     <div className="unison-container">
       <p>Unison</p>
@@ -267,22 +225,24 @@ function UnisonThing(props: UnisonProps) {
         max={14}
         step={2}
         className="u-slider"
-        onInput={handleSizeChange}
+        onInput={setSize}
       />
       <div className="flex w-full justify-evenly">
         <Knob
           className="text-center text-xs"
           title="Detune"
-          onValueChange={handleDetuneChange}
+          onValueChange={setDetune}
           dragResistance={50}
           onMount={setDtnKnob}
+          max={100}
         />
         <Knob
           className="text-center text-xs"
           title="Spread"
-          onValueChange={handleSpreadChange}
+          onValueChange={setSpread}
           dragResistance={50}
           onMount={setSprdKnob}
+          max={100}
         />
       </div>
     </div>

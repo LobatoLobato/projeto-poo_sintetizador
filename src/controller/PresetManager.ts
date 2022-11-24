@@ -30,7 +30,7 @@ export class PresetManager {
       type: "sine",
       pitchOffset: 0,
       detune: 0,
-      lfo_depth: 0,
+      lfoDepth: 0,
       unison: {
         size: 0,
         detune: 0,
@@ -53,7 +53,23 @@ export class PresetManager {
         sustain: 1,
         release: 0,
       },
-      lfo_depth: 0,
+      lfoDepth: 0,
+    },
+    FilterParams: {
+      discriminator: "FilterParams",
+      type: "lowpass",
+      slope: "-12dB",
+      cutoffFrequency: 20000,
+      Q: 0,
+      lfoDepth: 0,
+      driveAmount: 0,
+      envelope: {
+        amount: 0,
+        attack: 0,
+        decay: 0,
+        sustain: 0,
+        release: 0,
+      },
     },
   };
   private defaultPreset: Preset = new Map(
@@ -81,7 +97,10 @@ export class PresetManager {
       const param = value ?? defaultParams[key];
       return { ...acc, [key]: param };
     }, {} as T);
-
+    const paramName = params.discriminator
+      .toLowerCase()
+      .replace("params", " parameters");
+    console.log(`Saving ${paramName}`);
     this.preset.set(params.discriminator, paramData); // Cria ou atualiza o container no preset
   }
   /**
@@ -98,7 +117,11 @@ export class PresetManager {
       throw new Error(
         `Param Container "${paramContainerName}" not found or empty`
       );
-    // return null;
+
+    const paramName = params.discriminator
+      .toLowerCase()
+      .replace("params", " parameters");
+    console.log(`Loading ${paramName}`);
     return params as IData.IDataInterfaces[T];
   }
   /**
