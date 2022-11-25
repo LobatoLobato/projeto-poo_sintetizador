@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./Knob.scss";
 import {
   FLStandardKnob,
@@ -9,15 +9,16 @@ export interface KnobProps extends FLStandardKnobOptions {
   className?: string;
   title?: string;
   onValueChange?: (value: number) => void;
-  onMount?: (knob: FLStandardKnob) => void;
   logarithmic?: boolean;
+  value?: number | null;
 }
 export function Knob(props: KnobProps) {
   const knobContainer = useRef<HTMLDivElement>(null);
-  const { className, title, onValueChange, onMount } = props;
+  const { className, title, onValueChange } = props;
   const min = props.min ?? 0;
   const max = props.max ?? 1;
   const step = props.step ?? 0.01;
+  const [knob, setKnob] = useState<FLStandardKnob>();
 
   useEffect(
     () => {
@@ -29,24 +30,32 @@ export function Knob(props: KnobProps) {
         ...props,
         initial: props.initial ?? 0,
       });
-      function handleValueChange() {
-        const kValue = knob.value ?? 0;
-        const value = props.logarithmic
-          ? Utils.linToLogScale(kValue, min, max, step)
-          : kValue;
-
-        if (onValueChange) onValueChange(value);
-      }
-      knob.addEventListener("change", handleValueChange);
-      knob.addEventListener("dblclick", handleValueChange);
-      knob.addEventListener("wheel", handleValueChange);
-      if (onMount) onMount(knob);
+      setKnob(knob);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onMount]
+    [knobContainer]
   );
-  /*Object.fromEntries(deps)*/
+  useEffect(() => {
+    if (!knob) return;
+    function handleValueChange() {
+      const kValue = knob?.value ?? props.initial ?? min;
+      const value = props.logarithmic
+        ? Utils.linToLogScale(kValue, min, max, step)
+        : kValue;
+      if (onValueChange) onValueChange(value);
+    }
+    knob.addEventListener("change", handleValueChange);
+    knob.addEventListener("dblclick", handleValueChange);
+    knob.addEventListener("wheel", handleValueChange);
+  }, [knob, max, min, onValueChange, props.initial, props.logarithmic, step]);
 
+  const { value } = props;
+  useEffect(() => {
+    if (!knob || typeof value !== "number") return;
+    knob.value = props.logarithmic
+      ? Utils.logToLinScale(value ?? props.initial ?? min, min, max, step)
+      : value ?? props.initial;
+  }, [value, knob, props.logarithmic, props.initial, min, max, step]);
   return (
     <div className={className}>
       <p>{title}</p>

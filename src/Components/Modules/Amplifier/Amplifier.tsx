@@ -1,51 +1,33 @@
 import { useEffect, useState } from "react";
+import { Envelope, AudioVisualizer, Slider } from "components";
+import {
+  useLoadFromPreset,
+  useOnParamsChange,
+  useParamUpdater,
+  useSaveToPreset,
+} from "hooks";
 import "./Amplifier.scss";
 import { ModuleProps, VisualizerModule } from "models";
-import { Envelope, AudioVisualizer, Slider2 } from "components";
-import { IAmplifierParams, IEnvelopeParams } from "models/Data";
-import { PRESET_MANAGER } from "controller";
+import { IAmplifierParams } from "models/Data";
 
 interface AmplifierProps extends ModuleProps<IAmplifierParams> {
   onMount(visualizer: VisualizerModule): void;
 }
 export function Amplifier(props: AmplifierProps) {
+  const { onChange, onMount, savePreset, loadPreset } = props;
   const [visualizer, setVisualizer] = useState<VisualizerModule>();
-  const lfoSlider = {
-    setValue: useState<(value: number, linearize?: boolean) => void>(),
-  };
-  const envelope = {
-    setValues: useState<(values: IEnvelopeParams | undefined) => void>(),
-  };
-  const [ampParams, setAmpParams] = useState<IAmplifierParams>({
+  const params = useState<IAmplifierParams>({
     discriminator: "AmplifierParams",
   });
-  const { onChange, onMount } = props;
-  const { savePreset, loadPreset } = props;
+  const [setParam, loadParam] = useParamUpdater(params, loadPreset);
 
-  useEffect(() => {
-    onChange?.(ampParams);
-  }, [ampParams, onChange]);
+  useOnParamsChange(params[0], onChange);
+  useSaveToPreset(params[0], savePreset);
+  useLoadFromPreset(params, loadPreset);
 
   useEffect(() => {
     if (visualizer) onMount?.(visualizer);
   }, [visualizer, onMount]);
-
-  useEffect(() => {
-    if (!savePreset) return;
-    PRESET_MANAGER.saveToCurrentPreset(ampParams);
-    console.log(ampParams.envelope);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savePreset]);
-
-  useEffect(() => {
-    if (!loadPreset) return;
-    const params = PRESET_MANAGER.loadFromCurrentPreset("AmplifierParams");
-    const [setEnvelopeValues] = envelope.setValues;
-    const [setLFOSliderValue] = lfoSlider.setValue;
-    setEnvelopeValues?.(params.envelope);
-    setLFOSliderValue?.(params.lfoDepth ?? 0, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadPreset]);
 
   return (
     <div className="amplifier">
@@ -55,19 +37,18 @@ export function Amplifier(props: AmplifierProps) {
       </div>
       <Envelope
         className="amplifier-envelope"
-        onMount={envelope.setValues[1]}
-        onChange={(envelope) => setAmpParams((p) => ({ ...p, envelope }))}
         amount={{ initial: 0.22 }}
         sustain={{ initial: 1 }}
+        onChange={(envelope) => setParam("envelope", envelope)}
+        values={loadParam("envelope")}
       />
-      <div className="amplifier-lfo-slider">
+      <div className="lfo-slider">
         <p>LFO Depth</p>
-        <Slider2
-          onInput={(lfoDepth) => setAmpParams((p) => ({ ...p, lfoDepth }))}
-          logarithmic
+        <Slider
           max={1}
           step={0.01}
-          onMount={lfoSlider.setValue[1]}
+          onInput={(lfoDepth) => setParam("lfoDepth", lfoDepth)}
+          value={loadParam("lfoDepth")}
         />
       </div>
     </div>

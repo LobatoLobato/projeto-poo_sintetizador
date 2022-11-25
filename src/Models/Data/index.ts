@@ -3,6 +3,7 @@ import type { IOscillatorParams, IUnisonParams } from "./IOscillatorParams";
 import type { IEnvelopeParams } from "./IEnvelopeParams";
 import type { ILFOParams } from "./ILFOParams";
 import type { IFilterParams } from "./IFilterParams";
+
 export type PresetParamContainer =
   | IAmplifierParams
   | IOscillatorParams

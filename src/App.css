@@ -6,3 +6,10 @@
 .initctx-btn {
   @apply mx-auto mt-20 h-8 w-fit border-2 border-black bg-gray-400 px-2 hover:bg-pink-300;
 }
+.lfo-slider {
+  @apply flex h-fit w-full items-center gap-x-1 whitespace-nowrap bg-zinc-700
+    p-1 text-xs;
+}
+.knob {
+  @apply text-center text-xs;
+}

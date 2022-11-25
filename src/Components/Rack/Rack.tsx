@@ -63,27 +63,22 @@ export function Rack(props: RackProps) {
   return (
     <div className="rack">
       <LFO
-        noteOn={noteOn}
-        noteOff={noteOff}
         savePreset={savePreset}
         loadPreset={loadPreset}
         onChange={rack.setLFOParams}
       />
       <Oscillator
-        noteOn={noteOn}
-        noteOff={noteOff}
         savePreset={savePreset}
         loadPreset={loadPreset}
         onChange={rack.setOscillatorParams}
       />
       <Filter
-        noteOn={noteOn}
-        noteOff={noteOff}
         onChange={rack.setFilterParams}
+        savePreset={savePreset}
+        loadPreset={loadPreset}
       />
       <Amplifier
         onMount={setVisualizer}
-        noteOn={noteOn}
         savePreset={savePreset}
         loadPreset={loadPreset}
         onChange={rack.setAmplifierParams}

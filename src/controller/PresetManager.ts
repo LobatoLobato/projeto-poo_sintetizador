@@ -60,7 +60,7 @@ export class PresetManager {
       type: "lowpass",
       slope: "-12dB",
       cutoffFrequency: 20000,
-      Q: 0,
+      Q: -10,
       lfoDepth: 0,
       driveAmount: 0,
       envelope: {

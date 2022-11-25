@@ -141,7 +141,6 @@ export function Keyboard(props: KeyboardProps) {
             </button>
             <Slider
               className="w-full"
-              inputClassName="w-full"
               max={2}
               step={0.01}
               defaultValue={0}

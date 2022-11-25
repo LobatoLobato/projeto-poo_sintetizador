@@ -4,11 +4,11 @@
   h2 {
     @apply col-span-5 h-fit text-center;
   }
-  .bunda {
+  .oscillator-top {
     @apply grid h-1/2 grid-cols-5 gap-0.5;
     .unison-container {
       @apply relative col-span-3 row-span-2 flex w-full flex-col items-center justify-between
-    gap-1 overflow-hidden rounded-sm bg-zinc-700 px-1 py-1 text-sm text-white;
+      gap-1 overflow-hidden rounded-sm bg-zinc-700 px-1 py-1 text-sm text-white;
 
       .visualizer {
         @apply relative flex h-7 w-full justify-center
@@ -36,5 +36,12 @@
         @apply flex w-full flex-col items-center bg-zinc-700;
       }
     }
+    .pitch-controls {
+      @apply col-span-1 row-span-2 grid grid-rows-2 gap-0.5 bg-zinc-700;
+    }
+  }
+  .oscillator-envelope {
+    @apply col-span-full flex  w-full grow flex-col bg-zinc-700 px-1 
+    text-center text-sm;
   }
 }

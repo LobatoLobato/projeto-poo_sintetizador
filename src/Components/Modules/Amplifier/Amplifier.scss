@@ -12,8 +12,4 @@
     @apply flex h-fit w-full grow flex-col bg-zinc-700 
     px-1 pb-1 text-center text-sm;
   }
-  .amplifier-lfo-slider {
-    @apply flex h-fit w-full items-center gap-x-1 whitespace-nowrap
-    bg-zinc-700 p-1 text-xs;
-  }
 }
