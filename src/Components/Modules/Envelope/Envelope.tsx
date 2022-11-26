@@ -12,14 +12,11 @@ interface EnvelopeProps {
   decay?: KnobProps;
   sustain?: KnobProps;
   release?: KnobProps;
-  onMount?: (
-    setValues: () => (values: IEnvelopeParams | undefined) => void
-  ) => void;
   onChange?: (envelope: IEnvelopeParams) => void;
   values?: IEnvelopeParams | null;
 }
 export function Envelope(props: EnvelopeProps) {
-  const { className, onMount, onChange } = props;
+  const { className, onChange } = props;
   const [envelopeParams, setEnvelopeParams] = useState<IEnvelopeParams>({});
   const dragResistance = 50;
 
@@ -38,10 +35,7 @@ export function Envelope(props: EnvelopeProps) {
   const onReleaseChange = (value: number) => {
     setEnvelopeParams((p) => ({ ...p, release: value }));
   };
-  useEffect(() => {
-    if (!onMount) return;
-    onMount(() => () => {});
-  }, [onMount]);
+
   useEffect(() => {
     onChange?.(envelopeParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,6 +46,7 @@ export function Envelope(props: EnvelopeProps) {
     setEnvelopeParams(values);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values]);
+
   return (
     <div className={className}>
       <h3>{props.title ?? "Envelope"}</h3>

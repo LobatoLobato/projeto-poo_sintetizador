@@ -1,4 +1,5 @@
 import { PRESET_MANAGER } from "controller";
+import { NoteEvent } from "models";
 import { PresetParamContainer } from "models/Data";
 import { useEffect } from "react";
 
@@ -56,4 +57,18 @@ export function useParamUpdater<T extends PresetParamContainer>(
     return trigger ? st[param] : undefined;
   }
   return [set, load];
+}
+
+export function useNoteEvent(
+  on: (ev: CustomEvent<NoteEvent>) => void,
+  off: (ev: CustomEvent<NoteEvent>) => void
+) {
+  useEffect(() => {
+    window.addEventListener("noteon", on as EventListener);
+    window.addEventListener("noteoff", off as EventListener);
+    return () => {
+      window.removeEventListener("noteon", on as EventListener);
+      window.removeEventListener("noteoff", off as EventListener);
+    };
+  });
 }

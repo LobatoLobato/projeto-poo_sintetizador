@@ -17,10 +17,10 @@ import {
 } from "models/Data";
 
 export class RackController {
-  public readonly lfo: LFOModule = new LFOModule();
-  public readonly osc: OscillatorModule = new OscillatorModule();
-  public readonly filter: FilterModule = new FilterModule();
-  public readonly amp: AmplifierModule = new AmplifierModule();
+  private readonly lfo: LFOModule = new LFOModule();
+  private readonly osc: OscillatorModule = new OscillatorModule();
+  private readonly filter: FilterModule = new FilterModule();
+  private readonly amp: AmplifierModule = new AmplifierModule();
   private voiceMap: Map<
     number,
     [OscillatorModule, FilterModule, AmplifierModule, LFOModule]
@@ -38,16 +38,19 @@ export class RackController {
   public get output(): AudioNode {
     return this.amp.getOutputNode();
   }
-  public noteOn(note: number): void {
+  public noteOn(note: number, velocity: number): void {
     if (this.voiceMap.get(note)) return;
     const lfo = this.createLFO(this.lfo);
     const osc = this.createOscillator(this.osc);
     const filter = this.createFilter(this.filter);
     const amp = this.createAmplifier(this.amp);
     const noteFrequency = Utils.indexToFrequency(note);
+    velocity = (velocity * 0.22) / 127;
 
+    this.amp.setVelocity(velocity);
     this.osc.setFrequency(noteFrequency);
     osc.setFrequency(noteFrequency);
+    amp.setVelocity(velocity);
 
     lfo.connect(amp.getLfoInputNode());
     lfo.connect(osc.getLfoInputNode());
@@ -80,14 +83,24 @@ export class RackController {
         mod.disconnectAtParamValue(param, 0.003);
       });
     }
-    this.osc.envelope.stop();
-    this.amp.envelope.stop();
-    this.filter.envelope.stop();
-    this.lfo.stop();
+    if (this.voiceMap.size <= 1) {
+      this.osc.envelope.stop();
+      this.amp.envelope.stop();
+      this.filter.envelope.stop();
+      this.lfo.stop();
+    }
 
     this.voiceMap.delete(note);
   }
 
+  public portamentoOn(on: boolean) {
+    this.osc.setPortamentoOn(on);
+  }
+  public portamentoTime(time: number) {
+    this.osc.setPortamentoTime(time);
+  }
+
+  public legatoOn(on: boolean) {}
   private createOscillator(source?: OscillatorModule | IOscillatorParams) {
     const osc = new OscillatorModule();
     if (source) {
@@ -194,7 +207,7 @@ export class RackController {
     if (changedType) target.setType(type);
     if (changedDetune) target.setDetune(detune);
     if (changedPO) target.setPitchOffset(pitchOffset);
-    if (changedLfoDepth) target.setLfoAmount(lfoDepth);
+    if (changedLfoDepth) target.setLfoDepth(lfoDepth);
     if (envelope) this.copyEnvelopeParams(target.envelope, envelope);
     if (unison) {
       const { size, detune, spread } = unison;
@@ -229,7 +242,7 @@ export class RackController {
     if (changedQ) target.setQ(Q);
     if (changedSlope) target.setSlope(slope);
     if (changedDriveAmount) target.setDrive(driveAmount);
-    if (changedLfoDepth) target.setLfoAmount(lfoDepth);
+    if (changedLfoDepth) target.setLfoDepth(lfoDepth);
     if (envelope) this.copyEnvelopeParams(target.envelope, envelope);
   }
   private copyAmplifierParams(
@@ -239,7 +252,7 @@ export class RackController {
     const { lfoDepth, envelope } = source;
     const changedLfoDepth =
       lfoDepth !== undefined && lfoDepth !== target.lfoDepth;
-    if (changedLfoDepth) target.setLfoAmount(lfoDepth);
+    if (changedLfoDepth) target.setLfoDepth(lfoDepth);
     if (envelope) this.copyEnvelopeParams(target.envelope, envelope);
   }
   private copyEnvelopeParams(target: EnvelopeModule, source: IEnvelopeParams) {

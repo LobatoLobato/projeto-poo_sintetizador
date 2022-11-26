@@ -17,7 +17,6 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
   private _release: number = this.minValue;
   private _remainingAttackTime: number = this.minValue;
   private _remainingDecayTime: number = this.minValue;
-  private _ref: Module | undefined;
   constructor(
     maxValue: number,
     initialValue?: number,
@@ -25,7 +24,6 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
   ) {
     super();
     autoBind(this);
-    this._ref = options?.ref;
     if (initialValue) this.setAmount(initialValue);
     this.maxValue = Math.max(maxValue, this.minValue);
     this.source.connect(this.outputNode);
@@ -37,35 +35,29 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
    */
   public start(): void {
     // Para a curva atual
-    this.source.offset.cancelScheduledValues(this.currentTime());
+    this.source.offset.cancelScheduledValues(this.now());
     // Inicia a curva de "attack" até o valor máximo
-    this._remainingAttackTime = this.currentTime() + this.attack;
-    this.source.offset.setValueAtTime(this.minValue, this.currentTime());
-    this.source.offset.linearRampToValueAtTime(
-      1,
-      this.currentTime() + this.attack
-    );
+    this._remainingAttackTime = this.now() + this.attack;
+    this.source.offset.setValueAtTime(this.minValue, this.now());
+    this.source.offset.linearRampToValueAtTime(1, this.now() + this.attack);
 
     this.source.offset.exponentialRampToValueAtTime(
       this.sustain,
-      this.currentTime() + this.attack + this.decay
+      this.now() + this.attack + this.decay
     );
-    this._remainingDecayTime = this.currentTime() + this.attack + this.decay;
+    this._remainingDecayTime = this.now() + this.attack + this.decay;
   }
   /**
    * Para o envelope
    */
   public stop(): void {
     // Para a curva atual
-    this.source.offset.cancelScheduledValues(this.currentTime());
+    this.source.offset.cancelScheduledValues(this.now());
     // Inicia a curva de "release" até o valor mínimo
-    this.source.offset.setValueAtTime(
-      this.source.offset.value,
-      this.currentTime()
-    );
+    this.source.offset.setValueAtTime(this.source.offset.value, this.now());
     this.source.offset.exponentialRampToValueAtTime(
       this.minValue,
-      this.currentTime() + this.release
+      this.now() + this.release
     );
     this._remainingAttackTime = this.minValue;
     this._remainingDecayTime = this.minValue;
@@ -88,14 +80,8 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
   }
   public setAmount(value: number): void {
     value = value || this.minValue;
-    // if (this._destination instanceof AudioParam) {
-    //   if (value < 0) {
-    //     value = Math.max(value, -this._destination.value);
-    //     console.log(value);
-    //   }
-    // }
     this._amount = value;
-    this.outputNode.gain.setValueAtTime(value, this.currentTime());
+    this.outputNode.gain.setValueAtTime(value, this.now());
   }
   public setAttack(value: number): void {
     this._attack = Math.max(value, this.minValue);
@@ -107,8 +93,8 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
     value = Math.max(value, this.minValue);
     this._sustain = value;
 
-    if (this._remainingAttackTime > this.currentTime()) {
-      this.source.offset.cancelScheduledValues(this.currentTime());
+    if (this._remainingAttackTime > this.now()) {
+      this.source.offset.cancelScheduledValues(this.now());
       this.source.offset.linearRampToValueAtTime(
         this.maxValue,
         this._remainingAttackTime
@@ -120,7 +106,7 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
       return;
     }
     if (this._remainingDecayTime === this.minValue) return;
-    this.source.offset.cancelScheduledValues(this.currentTime());
+    this.source.offset.cancelScheduledValues(this.now());
     this.source.offset.exponentialRampToValueAtTime(
       this.maxValue * value,
       this._remainingDecayTime

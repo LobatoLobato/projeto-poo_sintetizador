@@ -76,14 +76,14 @@ export class FilterModule
   }
   public setType(type: BiquadFilterType | "bypass") {
     if (type === "bypass") {
-      // this.filterA.Q.value = this.minValue;
       this.filterA.frequency.value = this.maxCutoffFrequency;
-      this.filterB.Q.value = this.minValue;
+      this.filterA.Q.value = -10;
+      this.filterB.Q.value = -10;
       this.filterB.frequency.value = this.maxCutoffFrequency;
     } else {
       if (this._type === "bypass") {
-        // this.filterA.Q.value = this._Q;
         this.filterA.frequency.value = this._cutoffFrequency;
+        this.filterA.Q.value = this._Q;
         this.filterB.Q.value = this._Q;
         this.filterB.frequency.value = this._cutoffFrequency;
       }
@@ -116,6 +116,7 @@ export class FilterModule
       this.filterA.connect(this.outputNode);
       this.filterB.disconnect();
     }
+    this._slope = type;
   }
   public setDrive(value: number) {
     this.driveModule.setDrive(value);
@@ -131,7 +132,7 @@ export class FilterModule
     return this._lfoDepth;
   }
 
-  public setLfoAmount(value: number) {
+  public setLfoDepth(value: number) {
     value = Math.max(this.minValue, Math.min(value, this._maxLFOAmount));
     this._lfoDepth = value;
     this.lfoInputNode.gain.value = value * this._maxLFOAmount;

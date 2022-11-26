@@ -28,15 +28,17 @@ export class AmplifierModule extends Module<GainNode> implements IModulatable {
     this.inputNode.connect(this.compressorNode);
     this.compressorNode.connect(this.outputNode);
   }
-
-  public get lfoDepth(): number {
-    return this.lfoInputNode.gain.value;
+  public setVelocity(velocity: number): void {
+    velocity = Math.max(this.minValue, Math.min(velocity, 0.22));
+    this.inputNode.gain.value = velocity;
   }
-
+  public setLfoDepth(value: number): void {
+    this.lfoInputNode.gain.value = value;
+  }
   public getLfoInputNode(): GainNode {
     return this.lfoInputNode;
   }
-  public setLfoAmount(value: number): void {
-    this.lfoInputNode.gain.value = value;
+  public get lfoDepth(): number {
+    return this.lfoInputNode.gain.value;
   }
 }

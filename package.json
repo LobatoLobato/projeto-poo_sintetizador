@@ -4,14 +4,14 @@
   "private": true,
   "main": "public/electron/main.js",
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "craco eject",
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "react-scripts --max_old_space_size=4096 build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "electron:build": "cd ./src/electron && tsc",
     "electron:watch": "cd ./src/electron && tsc --watch",
     "electron:start": "npm run electron:build && wait-on tcp:127.0.0.1:4242 && electron .",
-    "electron:react-start": "cross-env BROWSER=none craco start",
+    "electron:react-start": "cross-env BROWSER=none react-scripts start",
     "electron:dev": "concurrently --kill-others-on-fail \"npm:electron:react-start\" \"npm:electron:start\" \"npm:electron:watch\""
   },
   "eslintConfig": {
@@ -63,6 +63,7 @@
   "devDependencies": {
     "@types/electron": "^1.6.10",
     "@types/file-saver": "^2.0.5",
+    "@types/webmidi": "^2.0.6",
     "@types/wicg-file-system-access": "^2020.9.5",
     "autoprefixer": "^10.4.13",
     "concurrently": "^7.5.0",

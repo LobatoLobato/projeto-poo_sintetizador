@@ -23,6 +23,15 @@ export function InputRange(props: Props) {
   const [values, setValues] = useState([
     (max ?? 100) - (defaultValue ?? min ?? 0),
   ]);
+
+  function handleDoubleClick() {
+    setValues([(max ?? 100) - (defaultValue ?? min ?? 0)]);
+    props.onChange?.(defaultValue ?? min ?? 0);
+  }
+  function handleOnChange(values: number[]) {
+    setValues(values);
+    props.onChange?.((max ?? 100) - values[0]);
+  }
   useEffect(() => {
     if (!track.current) return;
     let direction = Direction.Left;
@@ -38,30 +47,20 @@ export function InputRange(props: Props) {
   }, [values, orientation, min, max, colors]);
 
   useEffect(() => {
-    if (value !== undefined) {
+    if (typeof value === "number") {
       setValues([(max ?? 100) - value]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [max, value]);
 
   return (
-    <div
-      className={className}
-      onDoubleClick={() => {
-        setValues([(max ?? 100) - (defaultValue ?? min ?? 0)]);
-        if (props.onChange) props.onChange(defaultValue ?? min ?? 0);
-      }}
-    >
+    <div className={className} onDoubleClick={handleDoubleClick}>
       <Range
         direction={direction}
         step={step}
         min={min}
         max={max}
         values={values}
-        onChange={(values) => {
-          setValues(values);
-          if (props.onChange) props.onChange((max ?? 100) - values[0]);
-        }}
+        onChange={handleOnChange}
         renderTrack={({ props, children }) => (
           <div
             className={trackClassName}

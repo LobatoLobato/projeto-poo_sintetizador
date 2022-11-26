@@ -84,19 +84,25 @@ export class VisualizerModule extends Module<AnalyserNode> {
     this.backgroundColor = Utils.colorStrToHexNumber(style.backgroundColor);
     this.foregroundColor = Utils.colorStrToHexNumber(style.color);
   }
-
+  /**
+   * Habilita o visualizador
+   */
   public enable(): void {
     this.enabled = true;
     this.view.style.visibility = "visible";
     requestAnimationFrame(this.render);
   }
-
+  /**
+   * Desabilita o visualizador
+   */
   public disable(): void {
     this.mode = MODE.DISABLED;
     this.enabled = false;
     this.view.style.visibility = "hidden";
   }
-
+  /**
+   * Cicla o módo de visualização
+   */
   public cycleMode() {
     this.mode = (this.mode + 1) % MODE.COUNT;
     switch (this.mode) {
@@ -111,7 +117,9 @@ export class VisualizerModule extends Module<AnalyserNode> {
         break;
     }
   }
-
+  /**
+   * Passa a operar no modo FFT
+   */
   public setModeFFT() {
     this.mode = MODE.FFT;
     this.enable();
@@ -124,23 +132,32 @@ export class VisualizerModule extends Module<AnalyserNode> {
     }
     this.data = new Uint8Array(this.inputNode.frequencyBinCount);
   }
-
+  /**
+   * Passa a operar no modo osciloscópio
+   */
   public setModeWave() {
     this.mode = MODE.WAVE;
     this.enable();
     this.inputNode.fftSize = 2048;
     this.floatData = new Float32Array(this.inputNode.frequencyBinCount);
   }
-
-  public setPeriod(frequency: number) {
+  /**
+   * Define o período da forma de onda na entrada do visualizador a fim de
+   * sincronizar a fase do visualizador com a fase da forma de onda
+   * @param frequency A frequencia da forma de onda na entrada do visualizador
+   */
+  public setPeriod(frequency: number): void {
     // TODO: make WAVE_PIXELS_PER_SAMPLE dynamic so that low freqs don't get cut off
     if (this.mode !== MODE.WAVE) return;
     this.period = this.sampleRate() / frequency;
   }
 
-  public render() {
+  /**
+   * Renderiza a forma de onda ou o fft da forma de onda
+   */
+  public render(): void {
     // The time and data are sometimes duplicated. In this case we can bypass rendering.
-    const sampleTime = this.sampleRate() * this.currentTime();
+    const sampleTime = this.sampleRate() * this.now();
     if (sampleTime === this.lastTime) {
       // render the stage
       this.renderer.render(this.stage);

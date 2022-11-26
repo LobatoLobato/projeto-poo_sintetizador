@@ -13,10 +13,17 @@ export class LFOModule extends Module<GainNode> implements IModulator {
     this.osc.envelope.setSustain(1);
     this.amp.envelope.setAmount(0.5);
   }
+  /**
+   * Inicia o envelope do amplificador e do oscilador ao mesmo tempo
+   */
   public start(): void {
     this.osc.envelope.start();
     this.amp.envelope.start();
   }
+
+  /**
+   * Para o envelope do amplificador e do oscilador ao mesmo tempo
+   */
   public stop(): void {
     this.osc.envelope.stop();
     this.amp.envelope.stop();

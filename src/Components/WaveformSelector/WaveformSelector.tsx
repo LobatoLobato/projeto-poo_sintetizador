@@ -12,7 +12,7 @@ export function WaveformSelector(props: WaveformSelectorProps) {
   const iconRefs: React.RefObject<HTMLImageElement>[] = [];
   const waveForms = ["Sine", "Triangle", "Sawtooth", "Square"];
   const iconsUrl = `https://www.iconbolt.com/iconsets/phosphor-regular`;
-  const { value } = props;
+  const { value, orientation, className } = props;
 
   function handleOnClick(ev: React.MouseEvent, wave: string) {
     const icons = iconRefs.map((icon) => icon.current);
@@ -32,6 +32,7 @@ export function WaveformSelector(props: WaveformSelectorProps) {
       </button>
     );
   }
+
   useEffect(() => {
     if (value && iconRefs.length === waveForms.length) {
       const icons = iconRefs.map((icon) => icon.current);
@@ -44,13 +45,12 @@ export function WaveformSelector(props: WaveformSelectorProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
+
   return (
-    <div
-      className={`waveform-selector ${props.orientation} ${props.className}`}
-    >
+    <div className={`waveform-selector ${orientation} ${className}`}>
       <div
         ref={waveformIcons}
-        className={`waveform-icon-container ${props.orientation}`}
+        className={`waveform-icon-container ${orientation}`}
       >
         {waveForms.map(createIcon)}
       </div>

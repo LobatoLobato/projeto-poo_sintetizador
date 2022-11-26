@@ -10,3 +10,4 @@ export * from "./WaveformSelector/WaveformSelector";
 export * from "./Knob/Knob";
 export * from "./Modules/AudioVisualizer/AudioVisualizer";
 export * from "./NavBar/NavBar";
+export * from "./Modules/Filter/Filter";

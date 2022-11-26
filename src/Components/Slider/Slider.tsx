@@ -15,15 +15,10 @@ interface SliderProps {
   key?: string;
   logarithmic?: boolean;
   onInput?: (value: number) => void;
-  onMount?: (
-    setValue: () => (value: number | undefined, linearize?: boolean) => void
-  ) => void;
   value?: number | null;
 }
 export function Slider(props: SliderProps) {
   const { className, inputClassNames } = props;
-  const { onMount } = props;
-  const { step, min, max, defaultValue, logarithmic } = props;
   const [value, setValue] = useState(0);
   const inputKey = props.key ? `input-${props.key}` : undefined;
   const CNMod = props.orientation || "horizontal";
@@ -32,21 +27,15 @@ export function Slider(props: SliderProps) {
   const trackCN = track_CN ?? `input-track ${CNMod}`;
   const progressCN = prog_CN ?? `input-progress ${CNMod}`;
   const thumbCN = thumb_cn ?? `input-thumb ${CNMod}`;
+  const { step, min, max, defaultValue, logarithmic } = props;
 
-  useEffect(() => {
-    if (onMount)
-      onMount(() => (value: number | undefined, linearize?: boolean) => {
-        value = value ?? defaultValue ?? 0;
-        if (linearize) {
-          value = Utils.logToLinScale(value, min ?? 0, max ?? 100, step ?? 0.1);
-          setValue(value);
-        } else {
-          setValue(value);
-        }
-        props.onInput?.(value);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [max, min, step]);
+  function handleOnChange(value: number) {
+    const out = logarithmic
+      ? Utils.linToLogScale(value, min ?? 0, max ?? 100, step ?? 0.1)
+      : value;
+    props.onInput?.(out);
+    setValue(value);
+  }
 
   useEffect(() => {
     if (typeof props.value !== "number") return;
@@ -65,13 +54,7 @@ export function Slider(props: SliderProps) {
       progressClassname={progressCN}
       thumbClassname={thumbCN}
       colors={props.colors || ["#ff4000", "#ff0099", "#ddd"]}
-      onChange={(value) => {
-        const out = logarithmic
-          ? Utils.linToLogScale(value, min ?? 0, max ?? 100, step ?? 0.1)
-          : value;
-        if (props.onInput) props.onInput(out);
-        setValue(value);
-      }}
+      onChange={handleOnChange}
       defaultValue={defaultValue}
       step={step}
       min={min}

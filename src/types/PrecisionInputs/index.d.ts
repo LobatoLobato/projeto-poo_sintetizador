@@ -28,6 +28,10 @@ declare module "precision-inputs/dist/precision-inputs" {
       eventName: keyof HTMLElementEventMap,
       listener: (ev: React.FormEvent<HTMLInputElement>) => void
     ): void;
+    public removeEventListener(
+      eventName: keyof HTMLElementEventMap,
+      listener: (ev: React.FormEvent<HTMLInputElement>) => void
+    ): void;
     private handleBlur: () => void;
     private handleDoubleClick: () => void;
     private handleFocus: () => void;

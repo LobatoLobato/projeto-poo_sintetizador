@@ -9,4 +9,4 @@ export type { ModuleProps } from "./Services/ModuleProps";
 export type { IModulatable } from "./Services/IModulatable";
 export type { IModulator } from "./Services/IModulator";
 export * from "./Services/VisualizerModule";
-export * from "./KeyboardHandler";
+export * from "../controller/NoteEventHandler";

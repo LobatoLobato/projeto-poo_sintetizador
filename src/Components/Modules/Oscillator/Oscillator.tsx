@@ -44,6 +44,7 @@ export function Oscillator(props: ModuleProps<IOscillatorParams>) {
             step={1}
             min={-24}
             max={24}
+            initial={0}
             onValueChange={(val) => setParam("pitchOffset", val)}
             value={loadParam("pitchOffset")}
             indicatorRingType="split"
@@ -55,6 +56,7 @@ export function Oscillator(props: ModuleProps<IOscillatorParams>) {
             step={1}
             min={-50}
             max={50}
+            initial={0}
             onValueChange={(val) => setParam("detune", val)}
             value={loadParam("detune")}
             indicatorRingType="split"
