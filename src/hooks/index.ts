@@ -1,16 +1,37 @@
 import { PRESET_MANAGER } from "controller";
 import { NoteEvent } from "models";
 import { PresetParamContainer } from "models/Data";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
+export function useSaveState() {
+  const [save, setSave] = useState(false);
+  useEffect(() => {
+    const save = () => {
+      setSave(true);
+      setTimeout(() => setSave(false), 10);
+    };
+    window.addEventListener("SAVE_PRESET", save);
+    return () => window.removeEventListener("SAVE_PRESET", save);
+  }, []);
+  return save;
+}
+export function useLoadState() {
+  const [load, setLoad] = useState(false);
+  useEffect(() => {
+    const load = () => {
+      setLoad(true);
+      setTimeout(() => setLoad(false), 10);
+    };
+    window.addEventListener("LOAD_PRESET", load);
+    return () => window.removeEventListener("LOAD_PRESET", load);
+  }, []);
+  return load;
+}
 export function useSaveToPreset<T extends PresetParamContainer>(
   params: T,
   savePreset: boolean | undefined
 ): void {
   useEffect(() => {
-    if (savePreset) {
-      PRESET_MANAGER.saveToCurrentPreset(params);
-    }
+    if (savePreset) PRESET_MANAGER.saveToCurrentPreset(params);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savePreset]);
 }

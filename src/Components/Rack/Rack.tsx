@@ -4,12 +4,13 @@ import { NoteEvent, VisualizerModule } from "models";
 import { Amplifier, Oscillator, LFO, Filter } from "components";
 import { RackController } from "controller";
 import { Utils } from "common";
+import { useLoadState, useSaveState } from "hooks";
 
 export function Rack() {
-  const [visualizer, setVisualizer] = useState<VisualizerModule>();
-  const [savePreset, setSavePreset] = useState(false);
-  const [loadPreset, setLoadPreset] = useState(false);
   const rack = useMemo(() => new RackController(), []);
+  const [visualizer, setVisualizer] = useState<VisualizerModule>();
+  const savePreset = useSaveState();
+  const loadPreset = useLoadState();
 
   useEffect(() => {
     function on(ev: CustomEvent<NoteEvent>) {
@@ -37,22 +38,6 @@ export function Rack() {
     if (visualizer) rack.output.connect(visualizer.getInputNode());
   }, [visualizer, rack]);
 
-  useEffect(() => {
-    const save = () => {
-      setSavePreset(true);
-      setTimeout(() => setSavePreset(false), 10);
-    };
-    const load = () => {
-      setLoadPreset(true);
-      setTimeout(() => setLoadPreset(false), 10);
-    };
-    window.addEventListener("SAVE_PRESET", save);
-    window.addEventListener("LOAD_PRESET", load);
-    return () => {
-      window.removeEventListener("SAVE_PRESET", save);
-      window.removeEventListener("LOAD_PRESET", load);
-    };
-  }, []);
   return (
     <div className="rack">
       <LFO
