@@ -1,93 +1,58 @@
-import React, { useEffect, useState } from "react";
-import { createGlobalstate, useGlobalState } from "state-pool";
-import { KeyboardHandler } from "models";
+import React, { useEffect, useMemo, useState } from "react";
+import { NoteEvent, NoteEventHandler } from "models";
 import "./keyboard.scss";
 import { Slider } from "components";
 import { Utils } from "common";
+import { MIDIEventHandler } from "controller/MIDIHandler";
 
-const kbdKeys: string[] = KeyboardHandler.kbdKeys;
-
-const globalNoteOn = createGlobalstate({ note: -1, active: false });
-const globalNoteOff = createGlobalstate({ note: -1, active: false });
-
-const pressedKey = createGlobalstate("");
-KeyboardHandler.addKeyDownListener((ev, note) => {
-  const currentKey = ev.key.toUpperCase();
-  if (pressedKey.value === currentKey) return;
-  if (note >= 0) {
-    globalNoteOff.setValue({ note, active: false });
-    globalNoteOn.setValue({ note, active: true });
-  }
-  pressedKey.setValue(currentKey);
-});
-KeyboardHandler.addKeyUpListener((ev, note) => {
-  const currentKey = ev.key.toUpperCase();
-  // if (pressedKey.value !== currentKey) return;
-  globalNoteOff.setValue({ note, active: true });
-  globalNoteOn.setValue({ note, active: false });
-  pressedKey.setValue("");
-});
-
-interface KeyboardProps {
-  onNoteOn: (state: { note: number; active: boolean }) => void;
-  onNoteOff: (state: { note: number; active: boolean }) => void;
-  onPortamentoChange?: (state: { time: number; on: boolean }) => void;
-  onLegatoChange?: (state: boolean) => void;
-}
-export function Keyboard(props: KeyboardProps) {
-  const baseOctave = 36;
+export function Keyboard() {
+  const MIDIHandler = useMemo(() => new MIDIEventHandler(), []);
+  const NoteHandler = useMemo(() => new NoteEventHandler(), []);
   const [octave, setOctave] = useState(0);
   const [transpose, setTranspose] = useState(0);
-  const [portamentoTime, setPortamentoTime] = useState(0);
-  const [portamentoOn, setPortamentoOn] = useState(false);
   const [legatoOn, setLegatoOn] = useState(false);
-  const [noteOn, setNoteOn] = useGlobalState<{ note: number; active: boolean }>(
-    globalNoteOn
-  );
-  const [noteOff, setNoteOff] = useGlobalState<{
-    note: number;
-    active: boolean;
-  }>(globalNoteOff);
+  const [portamento, setPortamento] = useState({ on: false, time: 0 });
   const [isActive, setIsActive] = useState(false);
-  function handlePortamentoChange(value: number | boolean) {
-    if (!props.onPortamentoChange) return;
-    const time =
-      typeof value === "number" ? Utils.linToExp2(value, 0, 2) : portamentoTime;
-    const on = typeof value === "boolean" ? value : portamentoOn;
-    props.onPortamentoChange({ time, on });
-    setPortamentoTime(time);
-    setPortamentoOn(on);
+
+  function handleMouseLeave() {
+    if (isActive) handleNoteOff(-1);
+  }
+  function handlePortamentoTimeChange(value: number) {
+    const time = Utils.linToLogScale(value, 0, 2, 0.01);
+    setPortamento((p) => ({ on: p.on, time }));
   }
   function handleLegatoChange() {
-    setLegatoOn(!legatoOn);
-    if (props.onLegatoChange) props.onLegatoChange(!legatoOn);
+    setLegatoOn((l) => !l);
   }
   function handleNoteOn(note: number) {
     setIsActive(true);
-    setNoteOn({ note, active: true });
-    setNoteOff({ note, active: false });
+    const evOptions = { note, velocity: 127, portamento };
+    NoteHandler.dispatchNoteEvent("noteon", evOptions, true);
   }
   function handleNoteOff(note: number) {
     setIsActive(false);
-    setNoteOff({ note, active: true });
-    setNoteOn({ note, active: false });
+    const evOptions = { note, velocity: 0, portamento };
+    NoteHandler.dispatchNoteEvent("noteoff", evOptions, true);
   }
-  function handleMouseLeave() {
-    if (isActive) {
-      handleNoteOff(-1);
-    }
-  }
-  const { onNoteOn, onNoteOff } = props;
+
   useEffect(() => {
-    const note = noteOn.note + baseOctave + 12 * octave + transpose;
-    onNoteOn({ ...noteOn, note });
-  }, [noteOn, onNoteOn, octave, transpose]);
+    NoteHandler.setNoteOffset(12 * octave + transpose);
+  }, [octave, transpose, NoteHandler]);
+
   useEffect(() => {
-    const note = noteOff.note + baseOctave + 12 * octave + transpose;
-    onNoteOff({ ...noteOff, note });
-  }, [noteOff, onNoteOff, octave, transpose]);
+    NoteHandler.setPortamento(portamento);
+  }, [portamento, NoteHandler]);
+
+  useEffect(() => {
+    return () => {
+      NoteHandler.dispose();
+      MIDIHandler.dispose();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="keyboard">
+    <div className="keyboard-container">
       <div className="top">
         <div className="pitch-selector">
           <div className="top-bar">
@@ -95,12 +60,10 @@ export function Keyboard(props: KeyboardProps) {
             <p className="octave-value">{octave}</p>
           </div>
           <div className="flex w-full gap-2">
-            <button
-              onClick={() => setOctave(octave > -5 ? octave - 1 : octave)}
-            >
+            <button onClick={() => setOctave((o) => (o > -5 ? o - 1 : o))}>
               -
             </button>
-            <button onClick={() => setOctave(octave < 5 ? octave + 1 : octave)}>
+            <button onClick={() => setOctave((o) => (o < 5 ? o + 1 : o))}>
               +
             </button>
           </div>
@@ -111,18 +74,10 @@ export function Keyboard(props: KeyboardProps) {
             <p className="octave-value">{transpose}</p>
           </div>
           <div className="flex w-full gap-2">
-            <button
-              onClick={() =>
-                setTranspose(transpose > -12 ? transpose - 1 : transpose)
-              }
-            >
+            <button onClick={() => setTranspose((t) => (t > -12 ? t - 1 : t))}>
               -
             </button>
-            <button
-              onClick={() =>
-                setTranspose(transpose < 12 ? transpose + 1 : transpose)
-              }
-            >
+            <button onClick={() => setTranspose((t) => (t < 12 ? t + 1 : t))}>
               +
             </button>
           </div>
@@ -130,12 +85,12 @@ export function Keyboard(props: KeyboardProps) {
         <div className="portamento-options">
           <div className="top-bar">
             <p className="pl-1">Portamento</p>
-            <p className="octave-value">{portamentoTime.toFixed(2)}</p>
+            <p className="octave-value">{portamento.time.toFixed(2)}</p>
           </div>
           <div className="flex h-full w-full items-center justify-center gap-2">
             <button
-              className={`octave-value h-7 ${portamentoOn ? "on" : ""}`}
-              onClick={() => handlePortamentoChange(!portamentoOn)}
+              className={`octave-value h-7 ${portamento.on ? "on" : ""}`}
+              onClick={() => setPortamento((p) => ({ ...p, on: !p.on }))}
             >
               <p>On</p>/<p>Off</p>
             </button>
@@ -144,7 +99,7 @@ export function Keyboard(props: KeyboardProps) {
               max={2}
               step={0.01}
               defaultValue={0}
-              onInput={handlePortamentoChange}
+              onInput={handlePortamentoTimeChange}
             />
           </div>
         </div>
@@ -156,11 +111,8 @@ export function Keyboard(props: KeyboardProps) {
           Legato
         </button>
       </div>
-      <div className="h-1 w-full bg-red-800"></div>
-      <div
-        className="keys flex w-full items-end justify-end"
-        onMouseLeave={handleMouseLeave}
-      >
+      <div className="separator"></div>
+      <div className="keyboard" onMouseLeave={handleMouseLeave}>
         <Octave
           onNoteOn={handleNoteOn}
           onNoteOff={handleNoteOff}
@@ -186,12 +138,15 @@ export function Keyboard(props: KeyboardProps) {
     </div>
   );
 }
+
 interface OctaveProps {
   startNote: number;
   onNoteOn: (note: number) => void;
   onNoteOff: (note: number) => void;
 }
 function Octave(props: OctaveProps) {
+  const kbdKeys: string[] = useMemo(() => NoteEventHandler.kbdKeys, []);
+  const { startNote, onNoteOn, onNoteOff } = props;
   return (
     <div className="octave-container">
       <div className="keys-container">
@@ -200,10 +155,10 @@ function Octave(props: OctaveProps) {
             <Key
               className="black w-2/12"
               key={`bkey-${val}`}
-              note={props.startNote + val}
-              text={kbdKeys[props.startNote + val]}
-              onNoteOn={props.onNoteOn}
-              onNoteOff={props.onNoteOff}
+              note={startNote + val}
+              text={kbdKeys[startNote + val]}
+              onNoteOn={onNoteOn}
+              onNoteOff={onNoteOff}
             />
           ))}
         </div>
@@ -212,10 +167,10 @@ function Octave(props: OctaveProps) {
             <Key
               className="black w-[11.5%]"
               key={`bkey-${val}`}
-              note={props.startNote + val}
-              text={kbdKeys[props.startNote + val]}
-              onNoteOn={props.onNoteOn}
-              onNoteOff={props.onNoteOff}
+              note={startNote + val}
+              text={kbdKeys[startNote + val]}
+              onNoteOn={onNoteOn}
+              onNoteOff={onNoteOff}
             />
           ))}
         </div>
@@ -226,10 +181,10 @@ function Octave(props: OctaveProps) {
             <Key
               className="white w-1/3"
               key={`wkey-${val}`}
-              note={props.startNote + val}
-              text={kbdKeys[props.startNote + val]}
-              onNoteOn={props.onNoteOn}
-              onNoteOff={props.onNoteOff}
+              note={startNote + val}
+              text={kbdKeys[startNote + val]}
+              onNoteOn={onNoteOn}
+              onNoteOff={onNoteOff}
             />
           ))}
         </div>
@@ -238,10 +193,10 @@ function Octave(props: OctaveProps) {
             <Key
               className="white w-1/4"
               key={`wkey-${val}`}
-              note={props.startNote + val}
-              text={kbdKeys[props.startNote + val]}
-              onNoteOn={props.onNoteOn}
-              onNoteOff={props.onNoteOff}
+              note={startNote + val}
+              text={kbdKeys[startNote + val]}
+              onNoteOn={onNoteOn}
+              onNoteOff={onNoteOff}
             />
           ))}
         </div>
@@ -249,6 +204,7 @@ function Octave(props: OctaveProps) {
     </div>
   );
 }
+
 interface KeyProps {
   className?: string;
   note: number;
@@ -257,27 +213,45 @@ interface KeyProps {
   onNoteOff: (note: number) => void;
 }
 function Key(props: KeyProps) {
-  const [currentPressedKey] = useGlobalState(pressedKey);
+  const [pressedKey, setPressedKey] = useState(-1);
+  const { onNoteOff, onNoteOn, note, text } = props;
+  const handleMouseUp = () => onNoteOff(note);
+  const handleMouseLeave = () => onNoteOff(note);
   function handleMouseDown(ev: React.MouseEvent) {
     ev.preventDefault();
-    if (ev.buttons === 1) props.onNoteOn(props.note);
+    if (ev.buttons === 1) onNoteOn(note);
   }
-  function handleMouseUp(ev: React.MouseEvent) {
-    props.onNoteOff(props.note);
+  function handleMouseEnter({ buttons }: React.MouseEvent) {
+    if (buttons === 1) onNoteOn(note);
   }
-  function handleMouseEnter(ev: React.MouseEvent) {
-    if (ev.buttons === 1) props.onNoteOn(props.note);
-  }
+
+  useEffect(() => {
+    function on(ev: CustomEvent<NoteEvent>) {
+      const note = ev.detail.note - ev.detail.offset;
+      if (props.note === note) setPressedKey(note);
+    }
+    function off(ev: CustomEvent<NoteEvent>) {
+      const note = ev.detail.note - ev.detail.offset;
+      if (props.note === note) setPressedKey(-1);
+    }
+    window.addEventListener("noteon", on as EventListener);
+    window.addEventListener("noteoff", off as EventListener);
+    return () => {
+      window.removeEventListener("noteon", on as EventListener);
+      window.removeEventListener("noteoff", off as EventListener);
+    };
+  });
+
+  const mod = pressedKey === note ? "pressed" : "";
   return (
     <div
-      className={`key ${props.className} ${
-        currentPressedKey === props.text ? "pressed" : ""
-      }`}
+      className={`key ${props.className} ${mod}`}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {props.text}
+      {text}
     </div>
   );
 }

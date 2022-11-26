@@ -1,65 +1,58 @@
 import { useEffect, useMemo, useState } from "react";
 import "./Rack.scss";
-import {
-  AmplifierModule,
-  FilterModule,
-  LFOModule,
-  Module,
-  OscillatorModule,
-  VisualizerModule,
-} from "models";
-import { Amplifier, Oscillator, LFO } from "components";
+import { NoteEvent, VisualizerModule } from "models";
+import { Amplifier, Oscillator, LFO, Filter } from "components";
 import { RackController } from "controller";
-import { useGlobalState } from "state-pool";
-import { LOAD_PRESET, SAVE_PRESET } from "../NavBar/NavBar";
-import Filter from "components/Modules/Filter/Filter";
 import { Utils } from "common";
 
-interface RackProps {
-  noteOn: { note: number; active: boolean };
-  noteOff: { note: number; active: boolean };
-  portamento: { time: number; on: boolean };
-  legatoOn: boolean;
-}
-export function Rack(props: RackProps) {
+export function Rack() {
   const [visualizer, setVisualizer] = useState<VisualizerModule>();
-  const [savePreset] = useGlobalState<boolean>(SAVE_PRESET);
-  const [loadPreset] = useGlobalState<boolean>(LOAD_PRESET);
-  const { noteOn, noteOff, portamento, legatoOn } = props;
+  const [savePreset, setSavePreset] = useState(false);
+  const [loadPreset, setLoadPreset] = useState(false);
   const rack = useMemo(() => new RackController(), []);
-  // useEffect(() => {
-  //   if (noteOn.active && (!prevNoteState || !legatoOn)) {
-  //     if (amplifier) amplifier.envelope.start();
-  //     if (lfo) lfo.start();
-  //     setPrevNoteState(true);
-  //     // rack.noteOn(noteOn.note);
-  //   } else if (noteOff.active) {
-  //     if (amplifier) amplifier.envelope.stop();
-  //     if (lfo) lfo.stop();
-  //     setPrevNoteState(false);
-  //     // rack.noteOff(noteOff.note);
-  //   }
-  // }, [noteOn, amplifier, lfo, noteOff, prevNoteState, legatoOn, rack]);
+
   useEffect(() => {
-    if (noteOn.active) {
-      rack.noteOn(noteOn.note);
-      visualizer?.setPeriod(Utils.indexToFrequency(noteOn.note));
+    function on(ev: CustomEvent<NoteEvent>) {
+      const { note, velocity, portamento } = ev.detail;
+      rack.noteOn(note, velocity);
+      visualizer?.setPeriod(Utils.indexToFrequency(note));
+      if (portamento) {
+        rack.portamentoOn(portamento.on);
+        rack.portamentoTime(portamento.time);
+      }
     }
-  }, [rack, noteOn, visualizer]);
-  useEffect(() => {
-    if (noteOff.active) {
-      rack.noteOff(noteOff.note);
+    function off(ev: CustomEvent<NoteEvent>) {
+      const note = ev.detail.note;
+      rack.noteOff(note);
     }
-  }, [rack, noteOff]);
-  // useEffect(() => {
-  //   if (oscillator) {
-  //     oscillator.setPortamentoOn(portamento.on);
-  //     oscillator.setPortamentoTime(portamento.time);
-  //   }
-  // }, [portamento, oscillator]);
+    window.addEventListener("noteon", on as EventListener);
+    window.addEventListener("noteoff", off as EventListener);
+    return () => {
+      window.removeEventListener("noteon", on as EventListener);
+      window.removeEventListener("noteoff", off as EventListener);
+    };
+  });
+
   useEffect(() => {
     if (visualizer) rack.output.connect(visualizer.getInputNode());
   }, [visualizer, rack]);
+
+  useEffect(() => {
+    const save = () => {
+      setSavePreset(true);
+      setTimeout(() => setSavePreset(false), 10);
+    };
+    const load = () => {
+      setLoadPreset(true);
+      setTimeout(() => setLoadPreset(false), 10);
+    };
+    window.addEventListener("SAVE_PRESET", save);
+    window.addEventListener("LOAD_PRESET", load);
+    return () => {
+      window.removeEventListener("SAVE_PRESET", save);
+      window.removeEventListener("LOAD_PRESET", load);
+    };
+  }, []);
   return (
     <div className="rack">
       <LFO
@@ -73,14 +66,14 @@ export function Rack(props: RackProps) {
         onChange={rack.setOscillatorParams}
       />
       <Filter
-        onChange={rack.setFilterParams}
         savePreset={savePreset}
         loadPreset={loadPreset}
+        onChange={rack.setFilterParams}
       />
       <Amplifier
-        onMount={setVisualizer}
         savePreset={savePreset}
         loadPreset={loadPreset}
+        onMount={setVisualizer}
         onChange={rack.setAmplifierParams}
       />
     </div>

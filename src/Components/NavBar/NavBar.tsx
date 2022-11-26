@@ -1,20 +1,13 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./NavBar.scss";
-import { createGlobalstate } from "state-pool";
 import { PRESET_MANAGER, FILE_HANDLER } from "controller";
+import isElectron from "is-electron";
 
-export const SAVE_PRESET = createGlobalstate(false);
-export const LOAD_PRESET = createGlobalstate(true);
-setTimeout(() => {
-  LOAD_PRESET.setValue(false);
-}, 1000);
+const SAVE_PRESET = new CustomEvent("SAVE_PRESET");
+const LOAD_PRESET = new CustomEvent("LOAD_PRESET");
 
 export function NavBar() {
-  return (
-    <nav className="nav-bar">
-      <PresetMenu />
-    </nav>
-  );
+  return <nav className="nav-bar">{!isElectron() && <PresetMenu />}</nav>;
 }
 
 function PresetMenu() {
@@ -27,7 +20,7 @@ function PresetMenu() {
   >([false, ""]);
   const [showNewPresetPrompt, setShowNewPresetPrompt] = useState(false);
 
-  function exportPresets() {
+  async function exportPresets() {
     const presetMap = PRESET_MANAGER.getPresetMapAsJSON();
     FILE_HANDLER.exportJSON(presetMap, "preset");
   }
@@ -38,6 +31,7 @@ function PresetMenu() {
       .then((map) => PRESET_MANAGER.setPresetMap(map))
       .catch(console.log);
   }
+
   function savePreset(presetName: string, overwrite?: boolean) {
     try {
       PRESET_MANAGER.savePreset(presetName, overwrite);
@@ -45,19 +39,11 @@ function PresetMenu() {
       setShowOverwritePrompt([true, presetName]);
     }
     PRESET_MANAGER.setPreset(presetName);
-
-    SAVE_PRESET.setValue(true);
-    setTimeout(() => {
-      SAVE_PRESET.setValue(false);
-    }, 500);
+    window.dispatchEvent(SAVE_PRESET);
   }
   function loadPreset(presetName: string) {
     PRESET_MANAGER.setPreset(presetName);
-
-    LOAD_PRESET.setValue(true);
-    setTimeout(() => {
-      LOAD_PRESET.setValue(false);
-    }, 500);
+    window.dispatchEvent(LOAD_PRESET);
     setPresetName(presetName);
   }
 
@@ -84,6 +70,9 @@ function PresetMenu() {
       </li>
     );
   }
+  useEffect(() => {
+    window.dispatchEvent(LOAD_PRESET);
+  }, []);
 
   return (
     <div className="menu" onMouseEnter={updatePresetNames}>
@@ -186,17 +175,15 @@ function PopUp(props: PopUpProps) {
         <input
           ref={input}
           style={{ display: props.showInput ? "flex" : "none" }}
-          className="text-black"
+          className="mx-2 text-black"
           type="text"
-          onInput={(ev) => {
-            if (onInput) onInput(ev.currentTarget.value);
-          }}
+          onInput={(ev) => onInput?.(ev.currentTarget.value)}
         />
         <div className="flex w-full justify-evenly">
           <button
             className="w-1/4 rounded-md bg-zinc-500"
             onClick={() => {
-              if (onAccept) onAccept();
+              if (onAccept) onAccept?.();
               if (input.current) input.current.value = "";
             }}
           >
