@@ -5,7 +5,6 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from "electron";
-
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
   submenu?: DarwinMenuItemConstructorOptions[] | Menu;
@@ -176,8 +175,37 @@ export default class MenuBuilder {
         label: "&File",
         submenu: [
           {
-            label: "&Open",
-            accelerator: "Ctrl+O",
+            label: "&Import Presets",
+            accelerator: "Ctrl+I",
+            click: () => {
+              // FILE_HANDLER.importPresets();
+            },
+          },
+          {
+            label: "&Export Presets",
+            accelerator: "Ctrl+E",
+            click: () => {},
+          },
+          {
+            label: "&Save Presets",
+            // accelerator: "Ctrl+O",
+            click: () => {
+              this.mainWindow.emit("EL_SAVE_PRESETS");
+            },
+          },
+          {
+            label: "&Save Preset",
+            // accelerator: "Ctrl+O",
+            click: () => {
+              this.mainWindow.emit("EL_SAVE_PRESET");
+            },
+          },
+          {
+            label: "&Load Preset",
+            // accelerator: "Ctrl+O",
+            click: () => {
+              this.mainWindow.emit("EL_LOAD_PRESET");
+            },
           },
           {
             label: "&Close",

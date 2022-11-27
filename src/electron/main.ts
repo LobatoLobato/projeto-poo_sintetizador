@@ -17,9 +17,10 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
+      contextIsolation: false,
+      // enableRemoteModule: true,
     },
   });
-  // console.log(__dirname);
   const startUrl = isDev
     ? "http://localhost:4242"
     : `file://${path.join(__dirname, "../build/index.html")}`;
