@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Envelope, AudioVisualizer, Slider } from "components";
+import { Envelope, AudioVisualizer, Slider } from "view/components";
 import {
   useLoadFromPreset,
   useOnParamsChange,
   useParamUpdater,
   useSaveToPreset,
-} from "hooks";
+} from "view/hooks";
 import "./Amplifier.scss";
 import { ModuleProps, VisualizerModule } from "models";
 import { IAmplifierParams } from "models/Data";

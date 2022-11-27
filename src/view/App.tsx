@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import { Keyboard, Rack, NavBar } from "components";
+import { Keyboard, Rack, NavBar } from "view/components";
 
 function App() {
   const [initCTX, setInitCTX] = useState(false);

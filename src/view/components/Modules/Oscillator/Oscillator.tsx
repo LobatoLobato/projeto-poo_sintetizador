@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Envelope, Slider, WaveformSelector, Knob } from "components";
+import { Envelope, Slider, WaveformSelector, Knob } from "view/components";
 import {
   useLoadFromPreset,
   useOnParamsChange,
   useParamUpdater,
   useSaveToPreset,
-} from "hooks";
+} from "view/hooks";
 import "./Oscillator.scss";
 import { ModuleProps } from "models";
 import { IOscillatorParams, IUnisonParams } from "models/Data";

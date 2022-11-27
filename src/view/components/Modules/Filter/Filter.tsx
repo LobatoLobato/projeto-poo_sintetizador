@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Envelope, Knob, Slider } from "components";
+import { Envelope, Knob, Slider } from "view/components";
 import {
   useLoadFromPreset,
   useOnParamsChange,
   useParamUpdater,
   useSaveToPreset,
-} from "hooks";
+} from "view/hooks";
 import "./Filter.scss";
 import { ModuleProps } from "models";
 import { IFilterParams } from "models/Data";

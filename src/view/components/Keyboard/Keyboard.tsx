@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { NoteEvent, NoteEventHandler } from "models";
 import "./keyboard.scss";
-import { Slider } from "components";
+import { Slider } from "view/components";
 import { Utils } from "common";
 import { MIDIEventHandler } from "controller/MIDIHandler";
 

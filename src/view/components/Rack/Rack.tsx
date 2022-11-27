@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import "./Rack.scss";
 import { NoteEvent, VisualizerModule } from "models";
-import { Amplifier, Oscillator, LFO, Filter } from "components";
+import { Amplifier, Oscillator, LFO, Filter } from "view/components";
 import { RackController } from "controller";
 import { Utils } from "common";
-import { useLoadState, useSaveState } from "hooks";
+import { useLoadState, useSaveState } from "view/hooks";
 
 export function Rack() {
   const rack = useMemo(() => new RackController(), []);

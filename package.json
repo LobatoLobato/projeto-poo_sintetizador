@@ -4,8 +4,8 @@
   "private": true,
   "main": "public/electron/main.js",
   "scripts": {
-    "start": "react-scripts --max_old_space_size=4096 start",
-    "build": "react-scripts --max_old_space_size=4096 build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron:build": "cd ./src/electron && tsc",
@@ -33,7 +33,6 @@
     ]
   },
   "dependencies": {
-    "@craco/craco": "^7.0.0",
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-regular-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",

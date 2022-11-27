@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Knob, KnobProps } from "components";
+import { Knob, KnobProps } from "view/components";
 import "./Envelope.scss";
 import { IEnvelopeParams } from "models/Data/IEnvelopeParams";
 

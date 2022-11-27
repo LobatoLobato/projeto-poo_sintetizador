@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Envelope, WaveformSelector } from "components";
+import { Envelope, WaveformSelector } from "view/components";
 import {
   useLoadFromPreset,
   useOnParamsChange,
   useParamUpdater,
   useSaveToPreset,
-} from "hooks";
+} from "view/hooks";
 import "./LFO.scss";
 import { ModuleProps } from "models";
 import { ILFOParams } from "models/Data";
