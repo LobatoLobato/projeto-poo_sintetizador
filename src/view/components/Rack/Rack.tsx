@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./Rack.scss";
 import { NoteEvent, VisualizerModule } from "models";
-import { Amplifier, Oscillator, LFO, Filter } from "view/components";
+import { Amplifier, Oscillator, LFO, Filter, FX } from "view/components";
 import { RackController } from "controller";
 import { Utils } from "common";
 import { useLoadState, useSaveState } from "view/hooks";

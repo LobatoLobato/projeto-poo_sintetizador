@@ -1,11 +1,6 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
-    "paths": {
-      "components": ["./components"],
-      "models": ["./models"],
-      "common": ["./common"]
-    },
     "target": "ES6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -20,8 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "outDir": "./public/electron"
+    "jsx": "react-jsx"
   },
   "include": ["./src/**/*"],
   "exclude": ["./src/electron/**/*"]

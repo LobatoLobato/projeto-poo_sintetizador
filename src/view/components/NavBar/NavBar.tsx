@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./NavBar.scss";
 import { PRESET_MANAGER, FILE_HANDLER } from "controller";
-import isElectron from "is-electron";
 
 const SAVE_PRESET = new CustomEvent("SAVE_PRESET");
 const LOAD_PRESET = new CustomEvent("LOAD_PRESET");
 
 export function NavBar() {
-  return <nav className="nav-bar">{!isElectron() && <PresetMenu />}</nav>;
+  return <nav className="nav-bar">{<PresetMenu />}</nav>;
 }
 
 function PresetMenu() {

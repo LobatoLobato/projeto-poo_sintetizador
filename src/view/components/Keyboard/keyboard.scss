@@ -1,6 +1,6 @@
 .keyboard-container {
   @apply flex w-full flex-col 
-  border-t-2 border-black bg-zinc-900;
+ bg-zinc-900;
   .top {
     @apply z-10 flex w-full items-center gap-4
     p-1 shadow-md shadow-[#00000060];
@@ -50,7 +50,7 @@
 }
 
 .octave-container {
-  @apply relative flex h-52 w-1/3 cursor-pointer;
+  @apply relative flex h-64 w-1/3 cursor-pointer;
 
   .keys-container {
     @apply absolute flex h-full w-full;

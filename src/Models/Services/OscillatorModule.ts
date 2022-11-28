@@ -1,5 +1,6 @@
 import autoBind from "auto-bind";
-import { Module, EnvelopeModule, IModulatable } from "models";
+import { Module, EnvelopeModule } from "models";
+import type { IModulatable } from "models";
 
 type UnisonNode = [OscillatorNode, GainNode, PannerNode];
 type Unison = {

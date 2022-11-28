@@ -1,10 +1,9 @@
 import FileSaver from "file-saver";
-import isElectron from "is-electron";
-import * as IData from "models/Data";
+import * as IData from "models/data";
 import {
   NotAvailableOnBrowserError,
   NotImplementedError,
-} from "models/Exceptions";
+} from "models/exceptions";
 
 import { PresetMap } from "./PresetManager";
 
@@ -24,30 +23,8 @@ export class FileHandler {
     } catch (e) {
       throw new Error("JSON inválido");
     }
-    // Se estiver rodando no electron (desktop)
-    // mostra a caixa de diálogo de salvar como, cria o arquivo
-    // e salva os presets no caminho especificado
-    if (isElectron()) {
-      const options: SaveFilePickerOptions = {
-        suggestedName: "SynthPreset.json",
-        types: [
-          {
-            description: "Synth presets",
-            accept: {
-              "text/plain": [".json"],
-            },
-          },
-        ],
-      };
-      window.showSaveFilePicker(options).then((handle) => {
-        this.writeFile(handle, JSONStr);
-      });
-    }
-    // Se estiver no browser cria e inicia o download do arquivo
-    else {
-      const file = new File([JSONStr], `${fileName}.json`); //Cria o arquivo .json
-      FileSaver.saveAs(file, `${fileName}.json`); // Inicia o download do arquivo
-    }
+    const file = new File([JSONStr], `${fileName}.json`); //Cria o arquivo .json
+    FileSaver.saveAs(file, `${fileName}.json`); // Inicia o download do arquivo
   }
   /**
    * Importa um mapa de presets a partir de um arquivo .json
@@ -128,14 +105,14 @@ export class FileHandler {
     fileHandle: FileSystemFileHandle,
     contents: FileSystemWriteChunkType
   ) {
-    if (!isElectron())
-      throw new NotAvailableOnBrowserError("Arquivo.writeFile");
-    // Create a FileSystemWritableFileStream to write to.
-    const writable = await fileHandle.createWritable();
-    // Write the contents of the file to the stream.
-    await writable.write(contents);
-    // Close the file and write the contents to disk.
-    await writable.close();
+    // if (!isElectron())
+    //   throw new NotAvailableOnBrowserError("Arquivo.writeFile");
+    // // Create a FileSystemWritableFileStream to write to.
+    // const writable = await fileHandle.createWritable();
+    // // Write the contents of the file to the stream.
+    // await writable.write(contents);
+    // // Close the file and write the contents to disk.
+    // await writable.close();
   }
 }
 

@@ -103,13 +103,6 @@ export function Keyboard() {
             />
           </div>
         </div>
-        <button
-          className="flex h-7 w-1/2 items-center justify-center rounded-md border-2 border-black bg-zinc-600 text-center shadow-sm shadow-black hover:bg-zinc-500"
-          style={{ background: legatoOn ? "red" : "yellow" }}
-          onClick={handleLegatoChange}
-        >
-          Legato
-        </button>
       </div>
       <div className="separator"></div>
       <div className="keyboard" onMouseLeave={handleMouseLeave}>
@@ -129,7 +122,7 @@ export function Keyboard() {
           startNote={24}
         />
         <Key
-          className="white h-52 w-[4.8%]"
+          className="white h-64 w-[4.8%]"
           note={36}
           onNoteOn={handleNoteOn}
           onNoteOff={handleNoteOff}

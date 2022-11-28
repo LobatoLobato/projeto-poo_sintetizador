@@ -1,5 +1,6 @@
 import autoBind from "auto-bind";
 import { Module } from "models";
+
 export class DriveModule extends Module<GainNode, WaveShaperNode> {
   protected inputNode: GainNode = new GainNode(Module.context, { gain: 1 });
   protected outputNode: WaveShaperNode = new WaveShaperNode(Module.context);

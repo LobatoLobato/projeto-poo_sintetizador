@@ -1,4 +1,4 @@
-import * as IData from "models/Data";
+import * as IData from "models/data";
 
 type Preset = Map<string, IData.PresetParamContainer>;
 export type PresetMap = Map<string, Preset>;

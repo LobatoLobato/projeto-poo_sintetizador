@@ -88,7 +88,8 @@ export abstract class Module<
    */
   public connect(destination?: AudioNode | AudioParam): void {
     if (!destination) return;
-    this.outputNode.connect(destination as AudioNode);
+    if (destination instanceof AudioNode) this.outputNode.connect(destination);
+    else this.outputNode.connect(destination);
     this._destination = destination;
   }
 }

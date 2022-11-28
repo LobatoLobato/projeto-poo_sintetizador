@@ -8,7 +8,7 @@ import {
 } from "view/hooks";
 import "./Oscillator.scss";
 import { ModuleProps } from "models";
-import { IOscillatorParams, IUnisonParams } from "models/Data";
+import { IOscillatorParams, IUnisonParams } from "models/data";
 import { Utils } from "common";
 
 export function Oscillator(props: ModuleProps<IOscillatorParams>) {

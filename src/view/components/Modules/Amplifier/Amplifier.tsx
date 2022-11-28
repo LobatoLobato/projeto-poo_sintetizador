@@ -8,7 +8,7 @@ import {
 } from "view/hooks";
 import "./Amplifier.scss";
 import { ModuleProps, VisualizerModule } from "models";
-import { IAmplifierParams } from "models/Data";
+import { IAmplifierParams } from "models/data";
 
 interface AmplifierProps extends ModuleProps<IAmplifierParams> {
   onMount(visualizer: VisualizerModule): void;

@@ -1,4 +1,5 @@
-import { Module, OscillatorModule, AmplifierModule, IModulator } from "models";
+import { Module, OscillatorModule, AmplifierModule } from "models";
+import type { IModulator } from "models";
 
 export class LFOModule extends Module<GainNode> implements IModulator {
   public readonly osc: OscillatorModule = new OscillatorModule();

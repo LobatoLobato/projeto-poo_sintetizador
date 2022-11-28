@@ -2,17 +2,11 @@
   "name": "projeto-poo_sintetizador",
   "version": "0.1.0",
   "private": true,
-  "main": "public/electron/main.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "electron:build": "cd ./src/electron && tsc",
-    "electron:watch": "cd ./src/electron && tsc --watch",
-    "electron:start": "npm run electron:build && wait-on tcp:127.0.0.1:4242 && electron .",
-    "electron:react-start": "cross-env BROWSER=none react-scripts start",
-    "electron:dev": "concurrently --kill-others-on-fail \"npm:electron:react-start\" \"npm:electron:start\" \"npm:electron:watch\""
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -46,7 +40,6 @@
     "@types/react-dom": "^18.0.8",
     "auto-bind": "^5.0.1",
     "file-saver": "^2.0.5",
-    "is-electron": "^2.2.1",
     "pixi.js": "^7.0.4",
     "precision-inputs": "^1.0.0",
     "prettier-plugin-tailwindcss": "^0.1.13",
@@ -55,20 +48,15 @@
     "react-range": "^1.8.14",
     "react-scripts": "5.0.1",
     "sass": "^1.56.1",
-    "state-pool": "^0.8.1",
+    "tone": "^14.7.77",
     "typescript": "^4.8.4",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "@types/electron": "^1.6.10",
     "@types/file-saver": "^2.0.5",
     "@types/webmidi": "^2.0.6",
     "@types/wicg-file-system-access": "^2020.9.5",
     "autoprefixer": "^10.4.13",
-    "concurrently": "^7.5.0",
-    "electron": "^21.3.0",
-    "electron-is-dev": "^2.0.0",
-    "electron-reloader": "^1.2.3",
     "postcss": "^8.4.18",
     "tailwind-scrollbar": "^2.0.1",
     "tailwindcss": "^3.2.2",

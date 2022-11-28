@@ -1,5 +1,5 @@
-import { Module, IModulator } from "models";
 import autoBind from "auto-bind";
+import { Module, IModulator } from "models";
 
 export class EnvelopeModule extends Module<GainNode> implements IModulator {
   protected inputNode: GainNode = new GainNode(Module.context, {

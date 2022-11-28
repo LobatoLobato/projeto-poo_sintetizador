@@ -14,8 +14,7 @@ import {
   IFilterParams,
   ILFOParams,
   IOscillatorParams,
-} from "models/Data";
-
+} from "models/data";
 export class RackController {
   private readonly lfo: LFOModule = new LFOModule();
   private readonly osc: OscillatorModule = new OscillatorModule();
@@ -59,7 +58,6 @@ export class RackController {
     osc.connect(filter.getInputNode());
     filter.connect(amp.getInputNode());
     amp.connect(Module.context.destination);
-
     lfo.start();
     osc.envelope.start();
     filter.envelope.start();

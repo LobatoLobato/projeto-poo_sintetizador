@@ -10,7 +10,9 @@ function App() {
       {initCTX ? (
         <>
           <NavBar />
-          <Rack />
+          <div className="h-full w-full bg-zinc-900 bg-gradient-to-b from-black to-zinc-900">
+            <Rack />
+          </div>
           <Keyboard />
         </>
       ) : (

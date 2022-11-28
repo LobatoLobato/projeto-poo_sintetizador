@@ -8,7 +8,7 @@ import {
 } from "view/hooks";
 import "./LFO.scss";
 import { ModuleProps } from "models";
-import { ILFOParams } from "models/Data";
+import { ILFOParams } from "models/data";
 
 export function LFO(props: ModuleProps<ILFOParams>) {
   const { onChange, savePreset, loadPreset } = props;

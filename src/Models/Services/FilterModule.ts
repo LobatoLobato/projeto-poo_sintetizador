@@ -1,6 +1,6 @@
 import autoBind from "auto-bind";
-import { Module, IModulatable, DriveModule } from "models";
-import { EnvelopeModule } from "./EnvelopeModule";
+import { Module, DriveModule, EnvelopeModule } from "models";
+import type { IModulatable } from "models";
 
 export class FilterModule
   extends Module<GainNode, DynamicsCompressorNode>

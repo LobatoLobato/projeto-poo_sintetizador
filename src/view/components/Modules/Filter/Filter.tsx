@@ -8,7 +8,7 @@ import {
 } from "view/hooks";
 import "./Filter.scss";
 import { ModuleProps } from "models";
-import { IFilterParams } from "models/Data";
+import { IFilterParams } from "models/data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 
