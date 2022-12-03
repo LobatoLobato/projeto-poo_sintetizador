@@ -97,10 +97,7 @@ export class PresetManager {
       const param = value ?? defaultParams[key];
       return { ...acc, [key]: param };
     }, {} as T);
-    const paramName = params.discriminator
-      .toLowerCase()
-      .replace("params", " parameters");
-    console.log(`Saving ${paramName}`);
+
     this.preset.set(params.discriminator, paramData); // Cria ou atualiza o container no preset
   }
   /**
@@ -118,10 +115,6 @@ export class PresetManager {
         `Param Container "${paramContainerName}" not found or empty`
       );
 
-    const paramName = params.discriminator
-      .toLowerCase()
-      .replace("params", " parameters");
-    console.log(`Loading ${paramName}`);
     return params as IData.IDataInterfaces[T];
   }
   /**
@@ -135,6 +128,17 @@ export class PresetManager {
 
     // Cria ou sobrescreve o preset
     this.presetMap.set(presetName, new Map());
+  }
+  /**
+   * Deleta um preset
+   */
+  public deletePreset(presetName: string): void {
+    if (!this.presetMap.get(presetName))
+      throw new Error(`Preset ${presetName} does not exist`);
+    else if (presetName === "Default")
+      throw new Error(`Default preset cannot be deleted`);
+
+    this.presetMap.delete(presetName);
   }
   /**
    * Define o preset atual

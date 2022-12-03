@@ -9,7 +9,7 @@
   }
   .menu {
     // define the height of the menu
-    --menu-height: 22px;
+    --menu-height: 32px;
     // holder and ul general style
     z-index: 50;
     box-sizing: border-box;
@@ -89,7 +89,7 @@
           width: 180px;
           background-color: #333;
           position: absolute;
-          top: calc(var(--menu-height));
+          top: calc(var(--menu-height) - 6px);
           left: 50%;
           transform: translateX(-25%);
           transition: 200ms;
@@ -101,7 +101,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            height: 20px;
+            height: 26px;
             padding-right: 40px;
             // lets put an arrow right
             // to the inner li`s with

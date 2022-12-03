@@ -18,7 +18,7 @@ function PresetMenu() {
     [boolean, string]
   >([false, ""]);
   const [showNewPresetPrompt, setShowNewPresetPrompt] = useState(false);
-
+  const [newPresetErrMsg, setNewPresetErrMsg] = useState("");
   async function exportPresets() {
     const presetMap = PRESET_MANAGER.getPresetMapAsJSON();
     FILE_HANDLER.exportJSON(presetMap, "preset");
@@ -45,7 +45,10 @@ function PresetMenu() {
     window.dispatchEvent(LOAD_PRESET);
     setPresetName(presetName);
   }
-
+  function deletePreset(presetName: string) {
+    PRESET_MANAGER.deletePreset(presetName);
+    setPresetName("Default");
+  }
   function updatePresetNames() {
     setPresetNames(PRESET_MANAGER.getPresetNames());
   }
@@ -78,10 +81,16 @@ function PresetMenu() {
       <PopUp
         showInput
         message="Enter the preset name (no spaces or hifens)"
+        errormsg={newPresetErrMsg}
         onInput={setNewPresetName}
         onAccept={() => {
-          savePreset(newPresetName);
-          setShowNewPresetPrompt(false);
+          if (newPresetName.toLowerCase() !== "default") {
+            savePreset(newPresetName);
+            setShowNewPresetPrompt(false);
+            setNewPresetErrMsg("");
+          } else {
+            setNewPresetErrMsg('Cannot save to "Default" preset. Try again');
+          }
         }}
         onReject={() => setShowNewPresetPrompt(false)}
         show={showNewPresetPrompt}
@@ -100,6 +109,33 @@ function PresetMenu() {
           Presets
           <ul ref={menu} onClick={toggleVisibility}>
             <li>
+              Save
+              <ul onMouseEnter={updatePresetNames}>
+                <li
+                  className="link"
+                  onClick={() => setShowNewPresetPrompt(true)}
+                >
+                  <p>New Preset</p>
+                </li>
+                {presetName !== "Default" && (
+                  <li className="link" onClick={() => savePreset(presetName)}>
+                    <p>{presetName}</p>
+                  </li>
+                )}
+                {presetNames.map((name) => {
+                  return (
+                    name !== "Default" && (
+                      <Li
+                        key={`sa-${name}`}
+                        name={name}
+                        onClick={() => savePreset(name)}
+                      />
+                    )
+                  );
+                })}
+              </ul>
+            </li>
+            <li>
               Load
               <ul onMouseEnter={updatePresetNames}>
                 <li className="link" onClick={() => loadPreset(presetName)}>
@@ -111,24 +147,24 @@ function PresetMenu() {
               </ul>
             </li>
             <li>
-              Save
+              Delete
               <ul onMouseEnter={updatePresetNames}>
-                <li
-                  className="link"
-                  onClick={() => setShowNewPresetPrompt(true)}
-                >
-                  <p>New Preset</p>
-                </li>
-                <li className="link" onClick={() => savePreset(presetName)}>
-                  <p>{presetName}</p>
-                </li>
-                {presetNames.map((name) => (
-                  <Li
-                    key={`sa-${name}`}
-                    name={name}
-                    onClick={() => savePreset(name)}
-                  />
-                ))}
+                {presetName !== "Default" && (
+                  <li className="link" onClick={() => deletePreset(presetName)}>
+                    <p>{presetName}</p>
+                  </li>
+                )}
+                {presetNames.map((name) => {
+                  return (
+                    name !== "Default" && (
+                      <Li
+                        key={`sa-${name}`}
+                        name={name}
+                        onClick={() => deletePreset(name)}
+                      />
+                    )
+                  );
+                })}
               </ul>
             </li>
             <li className="link">
@@ -159,6 +195,7 @@ interface PopUpProps {
   showInput?: boolean;
   message?: string;
   children?: JSX.Element;
+  errormsg?: string;
 }
 function PopUp(props: PopUpProps) {
   const input = useRef<HTMLInputElement>(null);
@@ -170,6 +207,7 @@ function PopUp(props: PopUpProps) {
     >
       <div className="flex h-fit w-1/4 flex-col gap-4 rounded-md bg-gray-800 pb-2 pt-1">
         {props.children}
+        {props.errormsg}
         <label>{props.message}</label>
         <input
           ref={input}

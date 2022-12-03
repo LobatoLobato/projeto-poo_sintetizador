@@ -2,7 +2,6 @@ import autoBind from "auto-bind";
 import { Utils } from "common";
 import {
   AmplifierModule,
-  EnvelopeModule,
   FilterModule,
   LFOModule,
   Module,
@@ -10,7 +9,6 @@ import {
 } from "models";
 import {
   IAmplifierParams,
-  IEnvelopeParams,
   IFilterParams,
   ILFOParams,
   IOscillatorParams,
@@ -58,6 +56,7 @@ export class RackController {
     osc.connect(filter.getInputNode());
     filter.connect(amp.getInputNode());
     amp.connect(Module.context.destination);
+
     lfo.start();
     osc.envelope.start();
     filter.envelope.start();
@@ -101,16 +100,18 @@ export class RackController {
   public legatoOn(on: boolean) {}
   private createOscillator(source?: OscillatorModule | IOscillatorParams) {
     const osc = new OscillatorModule();
+
     if (source) {
-      this.copyOscillatorParams(osc, source);
+      osc.copyParamsFrom(source);
     }
+
     return osc;
   }
   private createFilter(source?: FilterModule): FilterModule {
     const filter = new FilterModule();
 
     if (source) {
-      this.copyFilterParams(filter, source);
+      filter.copyParamsFrom(source);
     }
 
     return filter;
@@ -121,14 +122,16 @@ export class RackController {
     const amp = new AmplifierModule();
 
     if (source) {
-      this.copyAmplifierParams(amp, source);
+      amp.copyParamsFrom(source);
     }
+
     return amp;
   }
   private createLFO(source?: LFOModule | ILFOParams) {
     const lfo = new LFOModule();
+
     if (source) {
-      this.copyLFOParams(lfo, source);
+      lfo.copyParamsFrom(source);
     }
 
     return lfo;
@@ -137,128 +140,29 @@ export class RackController {
   public setOscillatorParams(params: IOscillatorParams): void {
     for (const voice of this.voiceMap.values()) {
       const osc = voice[0];
-      this.copyOscillatorParams(osc, params);
+      osc.copyParamsFrom(params);
     }
-    this.copyOscillatorParams(this.osc, params);
+    this.osc.copyParamsFrom(params);
   }
   public setFilterParams(params: IFilterParams): void {
     for (const voice of this.voiceMap.values()) {
       const filter = voice[1];
-      this.copyFilterParams(filter, params);
+      filter.copyParamsFrom(params);
     }
-    this.copyFilterParams(this.filter, params);
+    this.filter.copyParamsFrom(params);
   }
   public setAmplifierParams(params: IAmplifierParams): void {
     for (const voice of this.voiceMap.values()) {
       const amp = voice[2];
-      this.copyAmplifierParams(amp, params);
+      amp.copyParamsFrom(params);
     }
-    this.copyAmplifierParams(this.amp, params);
+    this.amp.copyParamsFrom(params);
   }
   public setLFOParams(params: ILFOParams): void {
     for (const voice of this.voiceMap.values()) {
       const lfo = voice[3];
-      this.copyLFOParams(lfo, params);
+      lfo.copyParamsFrom(params);
     }
-    this.copyLFOParams(this.lfo, params);
-  }
-
-  private copyLFOParams(
-    target: LFOModule,
-    source: LFOModule | ILFOParams
-  ): void {
-    let ampEnvelope: EnvelopeModule | IEnvelopeParams | undefined;
-    let rateEnvelope: EnvelopeModule | IEnvelopeParams | undefined;
-    let type: OscillatorType | undefined;
-
-    if (source instanceof LFOModule) {
-      type = source.osc.type;
-      rateEnvelope = source.osc.envelope;
-      ampEnvelope = source.amp.envelope;
-    } else {
-      type = source.type;
-      rateEnvelope = source.rateEnvelope;
-      ampEnvelope = source.ampEnvelope;
-    }
-    if (type && type !== target.osc.type) {
-      target.osc.setType(type);
-    }
-    if (rateEnvelope) {
-      this.copyEnvelopeParams(target.osc.envelope, rateEnvelope);
-    }
-    if (ampEnvelope) {
-      this.copyEnvelopeParams(target.amp.envelope, ampEnvelope);
-    }
-  }
-  private copyOscillatorParams(
-    target: OscillatorModule,
-    source: OscillatorModule | IOscillatorParams
-  ): void {
-    const { type, detune, pitchOffset, unison, envelope } = source;
-    const lfoDepth = source.lfoDepth;
-    const changedType = type !== undefined && type !== target.type;
-    const changedDetune = detune !== undefined && detune !== target.detune;
-    const changedPO =
-      pitchOffset !== undefined && pitchOffset !== target.pitchOffset;
-    const changedLfoDepth =
-      lfoDepth !== undefined && lfoDepth !== target.lfoDepth;
-    if (changedType) target.setType(type);
-    if (changedDetune) target.setDetune(detune);
-    if (changedPO) target.setPitchOffset(pitchOffset);
-    if (changedLfoDepth) target.setLfoDepth(lfoDepth);
-    if (envelope) this.copyEnvelopeParams(target.envelope, envelope);
-    if (unison) {
-      const { size, detune, spread } = unison;
-      const changedSize = size !== undefined && size !== target.unisonSize;
-      const changedDetune =
-        detune !== undefined && detune !== target.unisonDetune;
-      const changedSpread =
-        spread !== undefined && spread !== target.unisonSpread;
-      if (changedSize) target.setUnisonSize(size);
-      if (changedDetune) target.setUnisonDetune(detune);
-      if (changedSpread) target.setUnisonSpread(spread);
-    }
-  }
-  private copyFilterParams(
-    target: FilterModule,
-    source: FilterModule | IFilterParams
-  ): void {
-    const { type, cutoffFrequency, Q, slope, driveAmount, lfoDepth, envelope } =
-      source;
-    const changedCutoff =
-      cutoffFrequency !== undefined &&
-      cutoffFrequency !== target.cutoffFrequency;
-    const changedQ = Q !== undefined && Q !== target.Q;
-    const changedSlope = slope !== undefined && slope !== target.slope;
-    const changedType = type !== undefined && type !== target.type;
-    const changedDriveAmount =
-      driveAmount !== undefined && driveAmount !== target.driveAmount;
-    const changedLfoDepth =
-      lfoDepth !== undefined && lfoDepth !== target.lfoDepth;
-    if (changedType) target.setType(type);
-    if (changedCutoff) target.setCutoff(cutoffFrequency);
-    if (changedQ) target.setQ(Q);
-    if (changedSlope) target.setSlope(slope);
-    if (changedDriveAmount) target.setDrive(driveAmount);
-    if (changedLfoDepth) target.setLfoDepth(lfoDepth);
-    if (envelope) this.copyEnvelopeParams(target.envelope, envelope);
-  }
-  private copyAmplifierParams(
-    target: AmplifierModule,
-    source: AmplifierModule | IAmplifierParams
-  ): void {
-    const { lfoDepth, envelope } = source;
-    const changedLfoDepth =
-      lfoDepth !== undefined && lfoDepth !== target.lfoDepth;
-    if (changedLfoDepth) target.setLfoDepth(lfoDepth);
-    if (envelope) this.copyEnvelopeParams(target.envelope, envelope);
-  }
-  private copyEnvelopeParams(target: EnvelopeModule, source: IEnvelopeParams) {
-    const { amount, attack, decay, sustain, release } = source;
-    if (amount !== undefined) target.setAmount(amount);
-    if (attack !== undefined) target.setAttack(attack);
-    if (decay !== undefined) target.setDecay(decay);
-    if (sustain !== undefined) target.setSustain(sustain);
-    if (release !== undefined) target.setRelease(release);
+    this.lfo.copyParamsFrom(params);
   }
 }

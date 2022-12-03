@@ -1,5 +1,11 @@
-import { Module, OscillatorModule, AmplifierModule } from "models";
+import {
+  Module,
+  OscillatorModule,
+  AmplifierModule,
+  EnvelopeModule,
+} from "models";
 import type { IModulator } from "models";
+import { IEnvelopeParams, ILFOParams } from "models/data";
 
 export class LFOModule extends Module<GainNode> implements IModulator {
   public readonly osc: OscillatorModule = new OscillatorModule();
@@ -28,5 +34,30 @@ export class LFOModule extends Module<GainNode> implements IModulator {
   public stop(): void {
     this.osc.envelope.stop();
     this.amp.envelope.stop();
+  }
+
+  public copyParamsFrom(source: LFOModule | ILFOParams): void {
+    let ampEnvelope: EnvelopeModule | IEnvelopeParams | undefined;
+    let rateEnvelope: EnvelopeModule | IEnvelopeParams | undefined;
+    let type: OscillatorType | undefined;
+
+    if (source instanceof LFOModule) {
+      type = source.osc.type;
+      rateEnvelope = source.osc.envelope;
+      ampEnvelope = source.amp.envelope;
+    } else {
+      type = source.type;
+      rateEnvelope = source.rateEnvelope;
+      ampEnvelope = source.ampEnvelope;
+    }
+    if (type && type !== this.osc.type) {
+      this.osc.setType(type);
+    }
+    if (rateEnvelope) {
+      this.osc.envelope.copyParamsFrom(rateEnvelope);
+    }
+    if (ampEnvelope) {
+      this.amp.envelope.copyParamsFrom(ampEnvelope);
+    }
   }
 }

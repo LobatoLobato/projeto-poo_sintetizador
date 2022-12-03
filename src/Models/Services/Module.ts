@@ -92,4 +92,6 @@ export abstract class Module<
     else this.outputNode.connect(destination);
     this._destination = destination;
   }
+
+  public abstract copyParamsFrom(source: any): void;
 }

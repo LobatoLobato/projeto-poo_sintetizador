@@ -13,10 +13,8 @@ export class MIDIEventHandler {
       .requestMIDIAccess({ sysex: false })
       .then((MIDIAccess) => {
         this.MIDIAccess = MIDIAccess;
-        this.MIDIInputs = this.MIDIAccess.inputs;
-        for (const input of this.MIDIInputs.values()) {
-          input.addEventListener("midimessage", this.handleMidiMessage);
-        }
+        this.MIDIAccess.onstatechange = this.handleMidiAccessChange;
+        this.handleMidiAccessChange();
       });
   }
   public async dispose() {
@@ -27,7 +25,18 @@ export class MIDIEventHandler {
         this.handleMidiMessage as EventListener
       );
     }
+    this.MIDIAccess?.removeEventListener(
+      "statechange",
+      this.handleMidiAccessChange
+    );
   }
+
+  private handleMidiAccessChange = () => {
+    this.MIDIInputs = this.MIDIAccess?.inputs ?? null;
+    for (const input of this.MIDIInputs?.values() ?? []) {
+      input.addEventListener("midimessage", this.handleMidiMessage);
+    }
+  };
 
   private handleMidiMessage = ({ data }: WebMidi.MIDIMessageEvent) => {
     const [command, value, mod] = data;

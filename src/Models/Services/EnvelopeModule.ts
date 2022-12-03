@@ -1,5 +1,6 @@
 import autoBind from "auto-bind";
 import { Module, IModulator } from "models";
+import { IEnvelopeParams } from "models/data";
 
 export class EnvelopeModule extends Module<GainNode> implements IModulator {
   protected inputNode: GainNode = new GainNode(Module.context, {
@@ -117,5 +118,13 @@ export class EnvelopeModule extends Module<GainNode> implements IModulator {
   }
   public getSourceNode(): ConstantSourceNode {
     return this.source;
+  }
+  public copyParamsFrom(source: IEnvelopeParams): void {
+    const { amount, attack, decay, sustain, release } = source;
+    if (amount !== undefined) this.setAmount(amount);
+    if (attack !== undefined) this.setAttack(attack);
+    if (decay !== undefined) this.setDecay(decay);
+    if (sustain !== undefined) this.setSustain(sustain);
+    if (release !== undefined) this.setRelease(release);
   }
 }

@@ -1,6 +1,7 @@
 import autoBind from "auto-bind";
 import { Module, DriveModule, EnvelopeModule } from "models";
 import type { IModulatable } from "models";
+import { IFilterParams } from "models/data";
 
 export class FilterModule
   extends Module<GainNode, DynamicsCompressorNode>
@@ -136,5 +137,26 @@ export class FilterModule
     value = Math.max(this.minValue, Math.min(value, this._maxLFOAmount));
     this._lfoDepth = value;
     this.lfoInputNode.gain.value = value * this._maxLFOAmount;
+  }
+
+  public copyParamsFrom(source: FilterModule | IFilterParams): void {
+    const { type, cutoffFrequency, Q, slope, driveAmount, lfoDepth, envelope } =
+      source;
+    const changedCutoff =
+      cutoffFrequency !== undefined && cutoffFrequency !== this.cutoffFrequency;
+    const changedQ = Q !== undefined && Q !== this.Q;
+    const changedSlope = slope !== undefined && slope !== this.slope;
+    const changedType = type !== undefined && type !== this.type;
+    const changedDriveAmount =
+      driveAmount !== undefined && driveAmount !== this.driveAmount;
+    const changedLfoDepth =
+      lfoDepth !== undefined && lfoDepth !== this.lfoDepth;
+    if (changedType) this.setType(type);
+    if (changedCutoff) this.setCutoff(cutoffFrequency);
+    if (changedQ) this.setQ(Q);
+    if (changedSlope) this.setSlope(slope);
+    if (changedDriveAmount) this.setDrive(driveAmount);
+    if (changedLfoDepth) this.setLfoDepth(lfoDepth);
+    if (envelope) this.envelope.copyParamsFrom(envelope);
   }
 }

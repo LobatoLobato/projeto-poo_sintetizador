@@ -2,6 +2,9 @@ import autoBind from "auto-bind";
 import { Module } from "models";
 
 export class DriveModule extends Module<GainNode, WaveShaperNode> {
+  public copyParamsFrom(source: any): void {
+    throw new Error("Method not implemented.");
+  }
   protected inputNode: GainNode = new GainNode(Module.context, { gain: 1 });
   protected outputNode: WaveShaperNode = new WaveShaperNode(Module.context);
   private _driveAmount: number = 0;

@@ -1,5 +1,6 @@
 import autoBind from "auto-bind";
 import { IModulatable, EnvelopeModule, Module } from "models";
+import { IAmplifierParams } from "models/data";
 
 export class AmplifierModule extends Module<GainNode> implements IModulatable {
   protected readonly inputNode: GainNode = new GainNode(Module.context, {
@@ -40,5 +41,13 @@ export class AmplifierModule extends Module<GainNode> implements IModulatable {
   }
   public get lfoDepth(): number {
     return this.lfoInputNode.gain.value;
+  }
+
+  public copyParamsFrom(source: AmplifierModule | IAmplifierParams): void {
+    const { lfoDepth, envelope } = source;
+    const changedLfoDepth =
+      lfoDepth !== undefined && lfoDepth !== this.lfoDepth;
+    if (changedLfoDepth) this.setLfoDepth(lfoDepth);
+    if (envelope) this.envelope.copyParamsFrom(envelope);
   }
 }

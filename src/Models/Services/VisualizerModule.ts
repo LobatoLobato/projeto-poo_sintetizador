@@ -15,6 +15,9 @@ interface IRenderer extends PIXI.IRenderer {
 const DEFAULT_LINE_WIDTH = 1.2;
 const WAVE_PIXELS_PER_SAMPLE = 0.4;
 export class VisualizerModule extends Module<AnalyserNode> {
+  public copyParamsFrom(source: any): void {
+    throw new Error("Method not implemented.");
+  }
   protected readonly inputNode: AnalyserNode = new AnalyserNode(
     Module.context,
     {

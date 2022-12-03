@@ -1,6 +1,7 @@
 import autoBind from "auto-bind";
 import { Module, EnvelopeModule } from "models";
 import type { IModulatable } from "models";
+import { IOscillatorParams } from "models/data";
 
 type UnisonNode = [OscillatorNode, GainNode, PannerNode];
 type Unison = {
@@ -28,7 +29,7 @@ export class OscillatorModule
   private _lfoDepth: number = 0;
   private _maxDetune: number = 0.5;
   private _type: OscillatorType = "sine";
-  private _frequency: number = 449;
+  private _frequency: number = 440;
   private _detune: number = 0;
   private _pitchOffset: number = 0;
   private _portamento: { on: boolean; time: number } = { on: false, time: 0 };
@@ -254,5 +255,32 @@ export class OscillatorModule
   }
   public get lfoDepth(): number {
     return this._lfoDepth;
+  }
+
+  public copyParamsFrom(source: OscillatorModule | IOscillatorParams): void {
+    const { type, detune, pitchOffset, unison, envelope } = source;
+    const lfoDepth = source.lfoDepth;
+    const changedType = type !== undefined && type !== this.type;
+    const changedDetune = detune !== undefined && detune !== this.detune;
+    const changedPO =
+      pitchOffset !== undefined && pitchOffset !== this.pitchOffset;
+    const changedLfoDepth =
+      lfoDepth !== undefined && lfoDepth !== this.lfoDepth;
+    if (changedType) this.setType(type);
+    if (changedDetune) this.setDetune(detune);
+    if (changedPO) this.setPitchOffset(pitchOffset);
+    if (changedLfoDepth) this.setLfoDepth(lfoDepth);
+    if (envelope) this.envelope.copyParamsFrom(envelope);
+    if (unison) {
+      const { size, detune, spread } = unison;
+      const changedSize = size !== undefined && size !== this.unisonSize;
+      const changedDetune =
+        detune !== undefined && detune !== this.unisonDetune;
+      const changedSpread =
+        spread !== undefined && spread !== this.unisonSpread;
+      if (changedSize) this.setUnisonSize(size);
+      if (changedDetune) this.setUnisonDetune(detune);
+      if (changedSpread) this.setUnisonSpread(spread);
+    }
   }
 }

@@ -83,6 +83,7 @@ export class NoteEventHandler extends EventTarget {
     if (offset) {
       values.note += base + val;
     }
+    console.log(this._portamento);
     if (type === "noteon") {
       this.noteOnEvent.detail.note = values.note;
       this.noteOnEvent.detail.offset = base + val;
@@ -106,10 +107,12 @@ export class NoteEventHandler extends EventTarget {
     this._portamento = portamento;
   }
   private on = (ev: KeyboardEvent) => {
+    if (ev.altKey) ev.preventDefault();
     const note = this.getIndex(ev.key);
+    const velocity = ev.altKey ? 63 : 127;
     if (note === this.prev) return;
 
-    this.dispatchNoteEvent("noteon", { note, velocity: 127 }, true);
+    this.dispatchNoteEvent("noteon", { note, velocity }, true);
     this.prev = note;
   };
   private off = (ev: KeyboardEvent) => {
