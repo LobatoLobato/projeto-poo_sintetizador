@@ -1,9 +1,5 @@
 import FileSaver from "file-saver";
 import * as IData from "models/data";
-import {
-  NotAvailableOnBrowserError,
-  NotImplementedError,
-} from "models/exceptions";
 
 import { PresetMap } from "./PresetManager";
 
@@ -64,55 +60,6 @@ export class FileHandler {
       };
       reader.readAsText(file); // Começa a leitura do arquivo importado
     });
-  }
-  /**
-   * ! Electron environment specific !
-   */
-  public async savePresets() {
-    throw new NotImplementedError("Arquivo.savePresets");
-    // if (!isElectron())
-    // throw new NotAvailableOnBrowserError("Arquivo.savePresets");
-  }
-  /**
-   * ! Electron environment specific !
-   */
-  public async getPreset() {
-    throw new NotImplementedError("Arquivo.getPreset");
-    // if (!isElectron())
-    // throw new NotAvailableOnBrowserError("Arquivo.getPreset");
-  }
-  /**
-   * ! Electron environment specific !
-   */
-  public async savePreset() {
-    throw new NotImplementedError("Arquivo.savePreset");
-    // if (!isElectron())
-    // throw new NotAvailableOnBrowserError("Arquivo.savePreset");
-  }
-  /**
-   * ! Electron environment specific !
-   */
-  public async deletePreset() {
-    throw new NotImplementedError("Arquivo.deletePreset");
-    // if (!isElectron())
-    // throw new NotAvailableOnBrowserError("Arquivo.deletePreset");
-  }
-
-  /**
-   * ! Electron environment specific !
-   */
-  private async writeFile(
-    fileHandle: FileSystemFileHandle,
-    contents: FileSystemWriteChunkType
-  ) {
-    // if (!isElectron())
-    //   throw new NotAvailableOnBrowserError("Arquivo.writeFile");
-    // // Create a FileSystemWritableFileStream to write to.
-    // const writable = await fileHandle.createWritable();
-    // // Write the contents of the file to the stream.
-    // await writable.write(contents);
-    // // Close the file and write the contents to disk.
-    // await writable.close();
   }
 }
 

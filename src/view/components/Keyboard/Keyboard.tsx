@@ -4,10 +4,12 @@ import "./keyboard.scss";
 import { Slider } from "view/components";
 import { Utils } from "common";
 import { MIDIEventHandler } from "controller/MIDIHandler";
+import { KeyboardHandler } from "controller/KeyboardHandler";
 
 export function Keyboard() {
   const MIDIHandler = useMemo(() => new MIDIEventHandler(), []);
   const NoteHandler = useMemo(() => new NoteEventHandler(), []);
+  const KbdHandler = useMemo(() => new KeyboardHandler(), []);
   const [octave, setOctave] = useState(0);
   const [transpose, setTranspose] = useState(0);
   const [legatoOn, setLegatoOn] = useState(false);
@@ -17,35 +19,34 @@ export function Keyboard() {
   function handleMouseLeave() {
     if (isActive) handleNoteOff(-1);
   }
-  function handlePortamentoTimeChange(value: number) {
-    const time = Utils.linToLogScale(value, 0, 2, 0.01);
-    setPortamento((p) => ({ on: p.on, time }));
-  }
-  function handleLegatoChange() {
-    setLegatoOn((l) => !l);
-  }
+
   function handleNoteOn(note: number) {
     setIsActive(true);
-    const evOptions = { note, velocity: 127, portamento };
+    const evOptions = {
+      note: note + 12 * octave + transpose,
+      velocity: 127,
+      portamento,
+    };
     NoteHandler.dispatchNoteEvent("noteon", evOptions, true);
   }
   function handleNoteOff(note: number) {
     setIsActive(false);
-    const evOptions = { note, velocity: 0, portamento };
+    const evOptions = {
+      note: note + 12 * octave + transpose,
+      velocity: 0,
+      portamento,
+    };
     NoteHandler.dispatchNoteEvent("noteoff", evOptions, true);
   }
 
   useEffect(() => {
     NoteHandler.setNoteOffset(12 * octave + transpose);
-  }, [octave, transpose, NoteHandler]);
-
-  useEffect(() => {
-    NoteHandler.setPortamento(portamento);
-  }, [portamento, NoteHandler]);
+    KbdHandler.setNoteOffset(12 * octave + transpose);
+  }, [octave, transpose, NoteHandler, KbdHandler]);
 
   useEffect(() => {
     return () => {
-      NoteHandler.dispose();
+      KbdHandler.dispose();
       MIDIHandler.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,27 +81,6 @@ export function Keyboard() {
             <button onClick={() => setTranspose((t) => (t < 12 ? t + 1 : t))}>
               +
             </button>
-          </div>
-        </div>
-        <div className="portamento-options">
-          <div className="top-bar">
-            <p className="pl-1">Portamento</p>
-            <p className="octave-value">{portamento.time.toFixed(2)}</p>
-          </div>
-          <div className="flex h-full w-full items-center justify-center gap-2">
-            <button
-              className={`octave-value h-7 ${portamento.on ? "on" : ""}`}
-              onClick={() => setPortamento((p) => ({ ...p, on: !p.on }))}
-            >
-              <p>On</p>/<p>Off</p>
-            </button>
-            <Slider
-              className="w-full"
-              max={2}
-              step={0.01}
-              defaultValue={0}
-              onInput={handlePortamentoTimeChange}
-            />
           </div>
         </div>
       </div>
@@ -138,7 +118,7 @@ interface OctaveProps {
   onNoteOff: (note: number) => void;
 }
 function Octave(props: OctaveProps) {
-  const kbdKeys: string[] = useMemo(() => NoteEventHandler.kbdKeys, []);
+  const kbdKeys: string[] = useMemo(() => KeyboardHandler.kbdKeys, []);
   const { startNote, onNoteOn, onNoteOff } = props;
   return (
     <div className="octave-container">
