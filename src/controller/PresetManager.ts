@@ -4,8 +4,8 @@ type Preset = Map<string, IData.PresetParamContainer>;
 export type PresetMap = Map<string, Preset>;
 
 export class PresetManager {
-  private preset: Preset = new Map(); // O preset atual, começa com o preset padrão
-  private presetMap: PresetMap = new Map(); // Mapa com todos os presets da sessão
+  private currPresetName: string = "Default";
+  private currPreset: Preset = new Map(); // O preset atual, começa com o preset padrão
   private readonly defaultPresetOBJ: IData.IDataInterfaces = {
     LFOParams: {
       discriminator: "LFOParams",
@@ -76,8 +76,8 @@ export class PresetManager {
     Object.entries(this.defaultPresetOBJ)
   );
   constructor() {
-    this.presetMap.set("Default", this.defaultPreset);
-    this.setPreset("Default");
+    localStorage.setItem(this.currPresetName, this.toJSON(this.defaultPreset));
+    this.setPreset(this.currPresetName);
   }
 
   /**
@@ -93,12 +93,21 @@ export class PresetManager {
     ) as Record<string, any>;
 
     // Cria o container a partir dos parametros passados
-    const paramData = Object.entries(params).reduce((acc, [key, value]) => {
-      const param = value ?? defaultParams[key];
-      return { ...acc, [key]: param };
-    }, {} as T);
+    const paramData = Object.keys(defaultParams).reduce((acc, key) => {
+      let param: any = defaultParams[key];
+      const pValue = (params as Record<string, any>)[key];
 
-    this.preset.set(params.discriminator, paramData); // Cria ou atualiza o container no preset
+      if (typeof pValue === "string") param = pValue;
+      else if (typeof pValue === "number") param = pValue;
+      else if (typeof pValue === "boolean") param = pValue;
+      else if (pValue) param = { ...defaultParams[key], ...pValue };
+
+      return { ...acc, [key]: param };
+    }, defaultParams as T);
+
+    this.currPreset.set(params.discriminator, paramData); // Cria ou atualiza o container no preset
+
+    localStorage.setItem(this.currPresetName, this.toJSON(this.currPreset));
   }
   /**
    * Retorna os parametros de um dos containers salvos no preset atual
@@ -108,7 +117,7 @@ export class PresetManager {
   public loadFromCurrentPreset<T extends keyof IData.IDataInterfaces>(
     paramContainerName: T
   ): IData.IDataInterfaces[T] {
-    const params = this.preset.get(paramContainerName); // Busca o container especificado no mapa
+    const params = this.currPreset.get(paramContainerName); // Busca o container especificado no mapa
     // Lança uma excessão se o container não existir
     if (params === undefined)
       throw new Error(
@@ -123,47 +132,70 @@ export class PresetManager {
    */
   public savePreset(presetName: string, overwrite?: boolean): void {
     // Lança excessão se o preset já existir e overwrite não for verdadeiro
-    if (this.presetMap.get(presetName) && !overwrite)
+    if (localStorage.getItem(presetName) && !overwrite)
       throw new Error(`Preset ${presetName} already exists`);
-
     // Cria ou sobrescreve o preset
-    this.presetMap.set(presetName, new Map());
+    localStorage.setItem(presetName, JSON.stringify({}));
   }
   /**
    * Deleta um preset
    */
   public deletePreset(presetName: string): void {
-    if (!this.presetMap.get(presetName))
+    if (!localStorage.getItem(presetName))
       throw new Error(`Preset ${presetName} does not exist`);
     else if (presetName === "Default")
       throw new Error(`Default preset cannot be deleted`);
 
-    this.presetMap.delete(presetName);
+    localStorage.removeItem(presetName);
   }
   /**
    * Define o preset atual
    * @param presetName O nome do preset
    */
   public setPreset(presetName: string) {
-    const preset = this.presetMap.get(presetName); // Busca o preset no mapa
+    const preset = localStorage.getItem(presetName); // Busca o preset no mapa
     if (!preset) throw new Error(`Preset ${presetName} not found`); // Lança excessão se o preset não existir
-    this.preset = preset; // Atribui o preset ao preset atual
+    this.currPreset = new Map(Object.entries(JSON.parse(preset))); // Atribui o preset ao preset atual
+    this.currPresetName = presetName;
   }
   /**
    * Getter para os nomes dos presets
    * @returns Array contendo os nomes dos presets
    */
   public getPresetNames() {
-    return [...this.presetMap.keys()];
+    return Object.keys(localStorage);
   }
   /**
-   * Define o mapa de preset
+   * Substitui o mapa de presets armazenado pelo mapa passado
    * (adiciona o preset padrão ao mapa passado como parâmetro)
    * @param map Mapa de presets
    */
   public setPresetMap(map: PresetMap) {
-    this.presetMap = map;
-    this.presetMap.set("Default", this.defaultPreset);
+    Object.keys(localStorage).forEach((key) => {
+      localStorage.removeItem(key);
+    });
+    const convMap: { [key: string]: Preset } = JSON.parse(this.toJSON(map));
+    Object.entries(convMap).forEach(([key, value]) => {
+      localStorage.setItem(key, JSON.stringify(value));
+    });
+    localStorage.setItem("Default", this.toJSON(this.defaultPreset));
+  }
+  /**
+   * Adiciona os presets do mapa de preset passado ao mapa armazenado
+   * (adiciona o preset padrão ao mapa passado como parâmetro)
+   * @param map Mapa de presets
+   */
+  public mergePresetMap(map: PresetMap, overwrite?: boolean) {
+    const convMap: { [key: string]: Preset } = JSON.parse(this.toJSON(map));
+    Object.entries(convMap).forEach(([key, value]) => {
+      if (!overwrite) {
+        const exists = localStorage.getItem(key);
+        !exists && localStorage.setItem(key, JSON.stringify(value));
+      } else {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    });
+    localStorage.setItem("Default", this.toJSON(this.defaultPreset));
   }
   /**
    * Retorna o mapa de presets com todos os presets ou
@@ -174,11 +206,15 @@ export class PresetManager {
   public getPresetMap(presetNames?: string[]): PresetMap {
     // Cria um mapa a partir do mapa de presets ou,
     // se definidos os presets a serem exportados, de um array vazio
-    const map: PresetMap = new Map(!presetNames ? this.presetMap : []);
+    const presetMap = new Map();
+    Object.entries(localStorage).forEach(([key, value]) => {
+      presetMap.set(key, JSON.parse(value));
+    });
+    const map: PresetMap = new Map(!presetNames ? presetMap : []);
 
     // Adiciona ao mapa os presets especificados se definidos
     presetNames?.forEach((name) => {
-      const preset = this.presetMap.get(name);
+      const preset = presetMap.get(name);
       if (preset) map.set(name, preset);
     });
 

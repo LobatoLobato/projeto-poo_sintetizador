@@ -87,6 +87,7 @@
           opacity: 0;
           padding: 0;
           width: 180px;
+          min-width: fit-content;
           background-color: #333;
           position: absolute;
           top: calc(var(--menu-height) - 6px);

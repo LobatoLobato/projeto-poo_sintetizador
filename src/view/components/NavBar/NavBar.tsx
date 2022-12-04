@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./NavBar.scss";
 import { PRESET_MANAGER, FILE_HANDLER } from "controller";
 
@@ -23,12 +23,23 @@ function PresetMenu() {
     const presetMap = PRESET_MANAGER.getPresetMapAsJSON();
     FILE_HANDLER.exportJSON(presetMap, "preset");
   }
-  async function importPresets(ev: React.FormEvent<HTMLInputElement>) {
+  async function importPresets(
+    ev: React.FormEvent<HTMLInputElement>,
+    type: "merge" | "overwrite",
+    mergeoverwrite?: boolean
+  ) {
     const file = ev.currentTarget.files?.item(0);
     if (!file) return;
     FILE_HANDLER.importPresets(file)
-      .then((map) => PRESET_MANAGER.setPresetMap(map))
+      .then((map) => {
+        if (type === "overwrite") {
+          PRESET_MANAGER.setPresetMap(map);
+        } else if (type === "merge") {
+          PRESET_MANAGER.mergePresetMap(map, mergeoverwrite);
+        }
+      })
       .catch(console.log);
+    ev.currentTarget.value = "";
   }
 
   function savePreset(presetName: string, overwrite?: boolean) {
@@ -51,6 +62,7 @@ function PresetMenu() {
   }
   function updatePresetNames() {
     setPresetNames(PRESET_MANAGER.getPresetNames());
+    console.log("Oi");
   }
 
   const toggleVisibility = () => {
@@ -62,16 +74,19 @@ function PresetMenu() {
     }, 20);
   };
 
-  function Li(props: { name: string; onClick: (name: string) => void }) {
-    if (props.name === presetName) return <></>;
-    const { name, onClick } = props;
-    const key = name + Math.random();
-    return (
-      <li key={`li-${key}`} className="link" onClick={() => onClick(name)}>
-        <p key={`p-${key}`}>{name}</p>
-      </li>
-    );
-  }
+  const Li = useCallback(
+    (props: { name: string; onClick: (name: string) => void }) => {
+      if (props.name === presetName) return <></>;
+      const { name, onClick } = props;
+      const key = name + Math.random();
+      return (
+        <li key={`li-${key}`} className="link" onClick={() => onClick(name)}>
+          <p key={`p-${key}`}>{name}</p>
+        </li>
+      );
+    },
+    [presetName]
+  );
   useEffect(() => {
     window.dispatchEvent(LOAD_PRESET);
   }, []);
@@ -104,13 +119,13 @@ function PresetMenu() {
         onReject={() => setShowOverwritePrompt([false, ""])}
         show={showOverwritePrompt[0]}
       />
-      <ul>
+      <ul onMouseEnter={updatePresetNames}>
         <li>
           Presets
           <ul ref={menu} onClick={toggleVisibility}>
             <li>
               Save
-              <ul onMouseEnter={updatePresetNames}>
+              <ul>
                 <li
                   className="link"
                   onClick={() => setShowNewPresetPrompt(true)}
@@ -137,7 +152,7 @@ function PresetMenu() {
             </li>
             <li>
               Load
-              <ul onMouseEnter={updatePresetNames}>
+              <ul>
                 <li className="link" onClick={() => loadPreset(presetName)}>
                   <p>{presetName}</p>
                 </li>
@@ -148,7 +163,7 @@ function PresetMenu() {
             </li>
             <li>
               Delete
-              <ul onMouseEnter={updatePresetNames}>
+              <ul>
                 {presetName !== "Default" && (
                   <li className="link" onClick={() => deletePreset(presetName)}>
                     <p>{presetName}</p>
@@ -158,7 +173,7 @@ function PresetMenu() {
                   return (
                     name !== "Default" && (
                       <Li
-                        key={`sa-${name}`}
+                        key={`del-${name}`}
                         name={name}
                         onClick={() => deletePreset(name)}
                       />
@@ -167,16 +182,49 @@ function PresetMenu() {
                 })}
               </ul>
             </li>
-            <li className="link">
-              <label className="h-full w-full">
-                <p>Import</p>
-                <input
-                  className="hidden"
-                  type="file"
-                  accept=".json"
-                  onInput={importPresets}
-                />
-              </label>
+            <li>
+              Import
+              <ul>
+                <li className="link">
+                  <label className="h-full w-full">
+                    <p>
+                      Merge with existing list (overwrite existing preset when
+                      duplicate)
+                    </p>
+                    <input
+                      className="hidden"
+                      type="file"
+                      accept=".json"
+                      onInput={(ev) => importPresets(ev, "merge", true)}
+                    />
+                  </label>
+                </li>
+                <li className="link">
+                  <label className="h-full w-full">
+                    <p>
+                      Merge with existing list (keep existing preset when
+                      duplicate)
+                    </p>
+                    <input
+                      className="hidden"
+                      type="file"
+                      accept=".json"
+                      onInput={(ev) => importPresets(ev, "merge", false)}
+                    />
+                  </label>
+                </li>
+                <li className="link">
+                  <label className="h-full w-full">
+                    <p>Overwrite existing list</p>
+                    <input
+                      className="hidden"
+                      type="file"
+                      accept=".json"
+                      onInput={(ev) => importPresets(ev, "overwrite")}
+                    />
+                  </label>
+                </li>
+              </ul>
             </li>
             <li className="link" onClick={exportPresets}>
               <p>Export</p>
