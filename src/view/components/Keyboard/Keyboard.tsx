@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { NoteEvent, NoteEventHandler } from "models";
 import "./keyboard.scss";
-import { Slider } from "view/components";
-import { Utils } from "common";
 import { MIDIEventHandler } from "controller/MIDIHandler";
 import { KeyboardHandler } from "controller/KeyboardHandler";
 
@@ -12,8 +10,6 @@ export function Keyboard() {
   const KbdHandler = useMemo(() => new KeyboardHandler(), []);
   const [octave, setOctave] = useState(0);
   const [transpose, setTranspose] = useState(0);
-  const [legatoOn, setLegatoOn] = useState(false);
-  const [portamento, setPortamento] = useState({ on: false, time: 0 });
   const [isActive, setIsActive] = useState(false);
 
   function handleMouseLeave() {
@@ -25,7 +21,6 @@ export function Keyboard() {
     const evOptions = {
       note: note + 12 * octave + transpose,
       velocity: 127,
-      portamento,
     };
     NoteHandler.dispatchNoteEvent("noteon", evOptions, true);
   }
@@ -34,7 +29,6 @@ export function Keyboard() {
     const evOptions = {
       note: note + 12 * octave + transpose,
       velocity: 0,
-      portamento,
     };
     NoteHandler.dispatchNoteEvent("noteoff", evOptions, true);
   }
