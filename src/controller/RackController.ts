@@ -13,6 +13,7 @@ import {
   ILFOParams,
   IOscillatorParams,
 } from "models/data";
+
 export class RackController {
   private readonly lfo: LFOModule = new LFOModule();
   private readonly osc: OscillatorModule = new OscillatorModule();
@@ -90,6 +91,35 @@ export class RackController {
     this.voiceMap.delete(note);
   }
 
+  public setOscillatorParams(params: IOscillatorParams): void {
+    for (const voice of this.voiceMap.values()) {
+      const osc = voice[0];
+      osc.copyParamsFrom(params);
+    }
+    this.osc.copyParamsFrom(params);
+  }
+  public setFilterParams(params: IFilterParams): void {
+    for (const voice of this.voiceMap.values()) {
+      const filter = voice[1];
+      filter.copyParamsFrom(params);
+    }
+    this.filter.copyParamsFrom(params);
+  }
+  public setAmplifierParams(params: IAmplifierParams): void {
+    for (const voice of this.voiceMap.values()) {
+      const amp = voice[2];
+      amp.copyParamsFrom(params);
+    }
+    this.amp.copyParamsFrom(params);
+  }
+  public setLFOParams(params: ILFOParams): void {
+    for (const voice of this.voiceMap.values()) {
+      const lfo = voice[3];
+      lfo.copyParamsFrom(params);
+    }
+    this.lfo.copyParamsFrom(params);
+  }
+
   public portamentoOn(on: boolean) {
     this.osc.setPortamentoOn(on);
   }
@@ -135,34 +165,5 @@ export class RackController {
     }
 
     return lfo;
-  }
-
-  public setOscillatorParams(params: IOscillatorParams): void {
-    for (const voice of this.voiceMap.values()) {
-      const osc = voice[0];
-      osc.copyParamsFrom(params);
-    }
-    this.osc.copyParamsFrom(params);
-  }
-  public setFilterParams(params: IFilterParams): void {
-    for (const voice of this.voiceMap.values()) {
-      const filter = voice[1];
-      filter.copyParamsFrom(params);
-    }
-    this.filter.copyParamsFrom(params);
-  }
-  public setAmplifierParams(params: IAmplifierParams): void {
-    for (const voice of this.voiceMap.values()) {
-      const amp = voice[2];
-      amp.copyParamsFrom(params);
-    }
-    this.amp.copyParamsFrom(params);
-  }
-  public setLFOParams(params: ILFOParams): void {
-    for (const voice of this.voiceMap.values()) {
-      const lfo = voice[3];
-      lfo.copyParamsFrom(params);
-    }
-    this.lfo.copyParamsFrom(params);
   }
 }

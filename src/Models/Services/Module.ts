@@ -44,6 +44,17 @@ export abstract class Module<
     return this.outputNode;
   }
   /**
+   * Conecta o nó a um nó de audio ou ao parametro de um nó de audio
+   * @param destination Nó de destino da conexão
+   */
+  public connect(destination?: AudioNode | AudioParam): void {
+    if (!destination) return;
+    if (destination instanceof AudioNode) this.outputNode.connect(destination);
+    else this.outputNode.connect(destination);
+    this._destination = destination;
+  }
+
+  /**
    * Desconecta o módulo após o tempo especificado
    * @param time Tempo, em milissegundos, em que o módulo vai ser desconectado
    */
@@ -82,16 +93,5 @@ export abstract class Module<
       }
     });
   }
-  /**
-   * Conecta o nó a um nó de audio ou ao parametro de um nó de audio
-   * @param destination Nó de destino da conexão
-   */
-  public connect(destination?: AudioNode | AudioParam): void {
-    if (!destination) return;
-    if (destination instanceof AudioNode) this.outputNode.connect(destination);
-    else this.outputNode.connect(destination);
-    this._destination = destination;
-  }
-
   public abstract copyParamsFrom(source: any): void;
 }
